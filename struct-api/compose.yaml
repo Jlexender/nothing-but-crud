@@ -12,7 +12,17 @@ services:
       timeout: 5s
       retries: 3
     volumes:
-      - './initdb/cassandra:/docker-entrypoint-initdb.d'
+      - './out/cassandra_data:/var/lib/cassandra'
+
+  cassandra-init:
+    container_name: 'cassandra-load-keyspace'
+    image: 'cassandra:latest'
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    volumes:
+      - './initdb/cassandra:/initdb'
+    command: /bin/bash -c "echo Initializing Cassandra && cqlsh cassandra 9042 -f /initdb/*;"
 
   redis:
     image: 'redis:latest'
@@ -31,8 +41,8 @@ services:
     build: .
     image: 'idb:latest'
     env_file:
-      - 'env/dev/idb-struct.env'
-      - 'env/dev/idb-struct-secrets.env'
+      - './env/dev/idb-struct-secrets.env'
+      - './env/dev/idb-struct.env'
     ports:
       - '3080:8080'
     depends_on:
