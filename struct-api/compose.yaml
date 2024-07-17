@@ -14,21 +14,6 @@ services:
     volumes:
       - './initdb/cassandra:/docker-entrypoint-initdb.d'
 
-  postgres:
-    image: 'postgres:latest'
-    env_file:
-      - './env/dev/postgres.env'
-      - './env/dev/postgres-secrets.env'
-    ports:
-      - '3032:5432'
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    volumes:
-      - './initdb/postgres:/docker-entrypoint-initdb.d'
-
   redis:
     image: 'redis:latest'
     env_file:
@@ -42,18 +27,16 @@ services:
       timeout: 5s
       retries: 3
 
-  idb:
+  idb-struct:
     build: .
     image: 'idb:latest'
     env_file:
-      - './env/dev/idb.env'
-      - './env/dev/idb-secrets.env'
+      - 'env/dev/idb-struct.env'
+      - 'env/dev/idb-struct-secrets.env'
     ports:
       - '3080:8080'
     depends_on:
       cassandra:
-        condition: service_healthy
-      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
