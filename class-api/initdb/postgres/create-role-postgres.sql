@@ -1,1 +1,0 @@
-CREATE ROLE postgres WITH LOGIN PASSWORD 'secret';
