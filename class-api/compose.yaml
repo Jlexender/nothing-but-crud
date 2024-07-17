@@ -1,0 +1,59 @@
+services:
+  cassandra:
+    image: 'cassandra:latest'
+    env_file:
+      - './env/dev/cassandra.env'
+      - './env/dev/cassandra-secrets.env'
+    ports:
+      - '3042:9042'
+    healthcheck:
+      test: 'cqlsh --execute "DESCRIBE KEYSPACES"'
+      interval: 20s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - './initdb/cassandra:/docker-entrypoint-initdb.d'
+
+  postgres:
+    image: 'postgres:latest'
+    env_file:
+      - './env/dev/postgres.env'
+      - './env/dev/postgres-secrets.env'
+    ports:
+      - '3032:5432'
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - './initdb/postgres:/docker-entrypoint-initdb.d'
+
+  redis:
+    image: 'redis:latest'
+    env_file:
+      - './env/dev/redis.env'
+      - './env/dev/redis-secrets.env'
+    ports:
+      - '3079:6379'
+    healthcheck:
+      test: 'redis-cli ping'
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  idb:
+    build: .
+    image: 'idb:latest'
+    env_file:
+      - './env/dev/idb.env'
+      - './env/dev/idb-secrets.env'
+    ports:
+      - '3080:8080'
+    depends_on:
+      cassandra:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
