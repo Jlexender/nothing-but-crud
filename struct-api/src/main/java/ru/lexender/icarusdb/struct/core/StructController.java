@@ -7,14 +7,11 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.lexender.icarusdb.struct.core.dto.StructResponse;
@@ -62,6 +59,4 @@ public class StructController {
     public Mono<Struct> updateById(@PathVariable UUID id, Struct struct) {
         return structService.updateById(id, struct);
     }
-
-
 }

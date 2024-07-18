@@ -1,12 +1,11 @@
 package ru.lexender.icarusdb.struct.core.model;
 
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.cassandra.core.mapping.Column;
-import org.springframework.data.cassandra.core.mapping.PrimaryKey;
-import org.springframework.data.cassandra.core.mapping.Table;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.nio.ByteBuffer;
 import java.util.Date;
@@ -18,7 +17,7 @@ import java.util.UUID;
 @Table
 public class Struct {
     @Builder.Default
-    @PrimaryKey
+    @Id
     UUID id = UUID.randomUUID();
 
     @Column("struct_name")

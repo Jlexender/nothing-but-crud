@@ -30,7 +30,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.flywaydb:flyway-database-postgresql")
-    implementation("org.springframework.boot:spring-boot-starter-data-cassandra-reactive")
+    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
+    implementation("org.springframework:spring-jdbc")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
@@ -38,6 +39,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.shell:spring-shell-starter-test")
+    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("org.postgresql:r2dbc-postgresql")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

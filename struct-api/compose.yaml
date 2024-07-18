@@ -1,28 +1,30 @@
 services:
-  cassandra:
-    image: 'cassandra:latest'
-    env_file:
-      - './env/dev/cassandra.env'
-      - './env/dev/cassandra-secrets.env'
-    ports:
-      - '3042:9042'
-    healthcheck:
-      test: 'cqlsh --execute "DESCRIBE KEYSPACES"'
-      interval: 20s
-      timeout: 5s
-      retries: 3
-    volumes:
-      - './out/cassandra_data:/var/lib/cassandra'
 
-  cassandra-init:
-    container_name: 'cassandra-load-keyspace'
-    image: 'cassandra:latest'
-    depends_on:
-      cassandra:
-        condition: service_healthy
-    volumes:
-      - './initdb/cassandra:/initdb'
-    command: /bin/bash -c "echo Initializing Cassandra && cqlsh cassandra 9042 -f /initdb/*;"
+#  cassandra:
+#    image: 'cassandra:latest'
+#    env_file:
+#      - './env/dev/cassandra.env'
+#      - './env/dev/cassandra-secrets.env'
+#    ports:
+#      - '3042:9042'
+#    healthcheck:
+#      test: 'cqlsh --execute "DESCRIBE KEYSPACES"'
+#      interval: 20s
+#      timeout: 5s
+#      retries: 3
+#    volumes:
+#      - './out/cassandra_data:/var/lib/cassandra'
+#
+#  cassandra-init:
+#    container_name: 'cassandra-load-keyspace'
+#    image: 'cassandra:latest'
+#    depends_on:
+#      cassandra:
+#        condition: service_healthy
+#    volumes:
+#      - './initdb/cassandra:/initdb'
+#      - './out/cassandra_data:/var/lib/cassandra'
+#    command: /bin/bash -c "echo Initializing Cassandra && cqlsh cassandra 9042 -f /initdb/*;"
 
   redis:
     image: 'redis:latest'
@@ -36,6 +38,25 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    networks:
+      - struct-api
+
+  postgres:
+    image: 'postgres:latest'
+    env_file:
+      - './env/dev/postgres.env'
+      - './env/dev/postgres-secrets.env'
+    ports:
+      - '3032:5432'
+    healthcheck:
+      test: 'pg_isready -U postgres'
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - './out/postgres_data:/var/lib/postgresql/data'
+    networks:
+      - struct-api
 
   idb-struct:
     build: .
@@ -46,7 +67,21 @@ services:
     ports:
       - '3080:8080'
     depends_on:
-      cassandra:
-        condition: service_healthy
+#      cassandra:
+#        condition: service_healthy
       redis:
         condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: 'wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1'
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 5
+    networks:
+      - struct-api
+
+networks:
+  struct-api:
+    driver: bridge
