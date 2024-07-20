@@ -1,0 +1,20 @@
+name: Upload docker image to SSH server using SCP
+
+on:
+    push:
+        branches:
+        - '*'
+    pull_request:
+        branches:
+        - dev
+
+jobs:
+    build:
+      uses: ./build.yaml
+    upload:
+        needs: build
+        if: success()
+        runs-on: ubuntu-latest
+        steps:
+        - name: Upload Docker image
+          run: scp -i ${{ secrets.SSH_PRIVATE_KEY }} ./build/libs/*.jar ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/ssh_uploads/
