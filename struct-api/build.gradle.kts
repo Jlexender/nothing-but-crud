@@ -48,7 +48,23 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+val dockerComposeFile = "compose.test.yaml"
+
+tasks.register<Exec>("dockerComposeUp") {
+    group = "docker"
+    description = "Start Docker Compose services."
+    commandLine("docker", "compose", "-f", dockerComposeFile, "up", "-d")
+}
+
+tasks.register<Exec>("dockerComposeDown") {
+    group = "docker"
+    description = "Stop Docker Compose services."
+    commandLine("docker", "compose", "down")
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
     environment("SPRING_PROFILES_ACTIVE", "test")
+    dependsOn("dockerComposeUp")
+    finalizedBy("dockerComposeDown")
 }
