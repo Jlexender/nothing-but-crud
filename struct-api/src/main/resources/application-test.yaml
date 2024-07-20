@@ -1,0 +1,9 @@
+spring:
+  # Import configuration
+  config:
+    import: |
+      optional:file:./env/test/idb-struct.env[.properties],
+      optional:file:./env/test/idb-struct-secrets.env[.properties]
+
+    activate:
+      on-profile: test

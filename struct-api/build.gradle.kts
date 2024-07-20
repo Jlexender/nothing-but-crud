@@ -50,4 +50,5 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    environment("SPRING_PROFILES_ACTIVE", "test")
 }
