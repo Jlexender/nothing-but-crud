@@ -16,6 +16,15 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
+/**
+ * This class is a configuration class for Redis.
+ * It includes beans for RedisTemplate and RedisCacheManager.
+ *
+ * @see RedisTemplate
+ * @see RedisCacheManager
+ *
+ * @author Jlexender
+ */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Configuration
@@ -44,4 +53,3 @@ public class RedisConfig {
                 .build();
     }
 }
-

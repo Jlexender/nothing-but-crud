@@ -2,6 +2,7 @@ services:
 
 #  cassandra:
 #    image: 'cassandra:latest'
+#    restart: always
 #    env_file:
 #      - './env/dev/cassandra.env'
 #      - './env/dev/cassandra-secrets.env'
@@ -28,6 +29,7 @@ services:
 
   redis:
     image: 'redis:latest'
+    restart: always
     env_file:
       - './env/dev/redis.env'
       - './env/dev/redis-secrets.env'
@@ -43,6 +45,7 @@ services:
 
   postgres:
     image: 'postgres:latest'
+    restart: always
     env_file:
       - './env/dev/postgres.env'
       - './env/dev/postgres-secrets.env'
@@ -53,8 +56,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    volumes:
-      - './out/postgres_data:/var/lib/postgresql/data'
+#    volumes:
+#      - './out/postgres_data:/var/lib/postgresql/data'
     networks:
       - struct-api
 
@@ -75,12 +78,25 @@ services:
         condition: service_healthy
     healthcheck:
       test: 'wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1'
-      interval: 30s
+      interval: 10s
       timeout: 5s
-      start_period: 15s
-      retries: 5
+      retries: 3
     networks:
       - struct-api
+
+  postgres-test:
+    image: 'postgres:latest'
+    restart: always
+    env_file:
+      - './env/test/postgres.env'
+      - './env/test/postgres-secrets.env'
+    ports:
+      - '3132:5432'
+    healthcheck:
+      test: 'pg_isready -U postgres'
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 networks:
   struct-api:

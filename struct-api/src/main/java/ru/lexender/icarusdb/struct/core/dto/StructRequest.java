@@ -1,30 +1,31 @@
 package ru.lexender.icarusdb.struct.core.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.sql.Timestamp;
 import java.util.Map;
-import java.util.UUID;
 
 /**
- * This class represents the StructResponse data transfer object.
- * It includes fields for id, struct_name, struct_fields, and created_at.
+ * This class represents the StructRequest data transfer object.
+ * It includes fields for struct_name and struct_fields.
+ *
+ * @see NotBlank
+ * @see NotNull
  *
  * @author Jlexender
  */
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
-public final class StructResponse {
-    UUID id;
-
+public final class StructRequest {
+    @NotBlank
     String struct_name;
 
+    @NotNull
     Map<String, String> struct_fields;
-
-    Timestamp created_at;
 }
