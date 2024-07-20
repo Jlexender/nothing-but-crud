@@ -4,6 +4,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -48,7 +51,7 @@ public class StructService {
      * @return a Mono signaling completion
      */
     @Transactional
-    // @CacheEvict(value = "structs", allEntries = true)
+    @CacheEvict(value = "structs", allEntries = true)
     public Mono<Void> deleteAll() {
         log.debug("Deleting all structs");
         return structRepository.deleteAll()
@@ -63,7 +66,7 @@ public class StructService {
      * @return a Mono of the fetched Struct
      */
     @Transactional(readOnly = true)
-    // @Cacheable(value = "struct", key = "#id")
+    @Cacheable(value = "struct", key = "#id")
     public Mono<Struct> findById(UUID id) {
         log.info("Fetching struct with ID: {}", id);
         return structRepository.findById(id)
@@ -77,7 +80,7 @@ public class StructService {
      * @return a Mono signaling completion
      */
     @Transactional
-    // @CacheEvict(value = "struct", key = "#id")
+    @CacheEvict(value = "struct", key = "#id")
     public Mono<Void> deleteById(UUID id) {
         log.debug("Deleting struct with ID: {}", id);
         return structRepository.deleteById(id)
@@ -92,7 +95,7 @@ public class StructService {
      * @return a Mono of the saved Struct
      */
     @Transactional
-    // @CachePut(value = "struct", key = "#struct.id")
+    @CachePut(value = "struct", key = "#struct.id")
     public Mono<Struct> save(Struct struct) {
         log.debug("Saving struct: {}", struct);
         return structRepository.save(struct)
