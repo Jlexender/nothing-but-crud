@@ -1,0 +1,36 @@
+services:
+  postgres-test:
+    image: 'postgres:latest'
+    restart: always
+    env_file:
+      - './env/test/postgres.env'
+      - './env/test/postgres-secrets.env'
+    ports:
+      - '3132:5432'
+    healthcheck:
+      test: 'pg_isready -U postgres'
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+        - struct-api-test
+
+  redis-test:
+    image: 'redis:latest'
+    restart: always
+    env_file:
+      - './env/test/redis.env'
+      - './env/test/redis-secrets.env'
+    ports:
+      - '3179:6379'
+    healthcheck:
+      test: 'redis-cli ping'
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+        - struct-api-test
+
+networks:
+  struct-api-test:
+      driver: bridge

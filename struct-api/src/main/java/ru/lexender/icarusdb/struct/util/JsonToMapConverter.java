@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.convert.WritingConverter;
+import org.springframework.data.convert.ReadingConverter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +24,7 @@ import java.util.Map;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Component
-@WritingConverter
+@ReadingConverter
 public class JsonToMapConverter implements Converter<String, Map<String, String>> {
 
     private final ObjectMapper objectMapper;

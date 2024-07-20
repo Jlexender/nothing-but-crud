@@ -84,20 +84,6 @@ services:
     networks:
       - struct-api
 
-  postgres-test:
-    image: 'postgres:latest'
-    restart: always
-    env_file:
-      - './env/test/postgres.env'
-      - './env/test/postgres-secrets.env'
-    ports:
-      - '3132:5432'
-    healthcheck:
-      test: 'pg_isready -U postgres'
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
 networks:
   struct-api:
     driver: bridge
