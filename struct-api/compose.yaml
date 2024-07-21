@@ -61,9 +61,9 @@ services:
     networks:
       - struct-api
 
-  idb-struct:
+  idb-struct-api:
     build: .
-    image: 'idb:latest'
+    image: 'idb-struct-api:latest'
     env_file:
       - './env/dev/idb-struct-secrets.env'
       - './env/dev/idb-struct.env'

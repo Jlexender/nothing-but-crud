@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idb-redis
+  labels:
+    app: idb-redis
+spec:
+  replicas: 1
+  selector:
+      matchLabels:
+        app: idb-redis
+  template:
+    metadata:
+      labels:
+          app: idb-redis
+    spec:
+      containers:
+      - name: idb-redis
+        image: redis:alpine
+        ports:
+        - containerPort: 6379
+      volumes:
+        - name: idb-redis-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: idb-redis
+  labels:
+    app: idb-redis
+spec:
+  ports:
+  - port: 6379
+    targetPort: 6379
+  selector:
+      app: idb-redis
+  type: ClusterIP

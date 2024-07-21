@@ -10,8 +10,8 @@ RUN java -Djarmode=layertools -jar app.jar extract
 
 FROM bellsoft/liberica-openjre-alpine:21
 VOLUME /tmp
-RUN adduser -S spring-user
-USER spring-user
+RUN adduser -S alex
+USER alex
 COPY --from=layers /application/dependencies/ ./
 COPY --from=layers /application/spring-boot-loader/ ./
 COPY --from=layers /application/snapshot-dependencies/ ./
