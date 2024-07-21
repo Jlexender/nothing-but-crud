@@ -24,16 +24,15 @@ jobs:
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v3
 
-      - name: Change directory and set working directory
+      - name: Check with Gradle
         run: |
           cd struct-api
-          pwd
-
-      - name: Check with Gradle
-        run: ./gradlew check
+          ./gradlew check
 
       - name: Build docker image and zip it
-        run: docker build -t struct-api . && docker save struct-api > struct-api.tar
+        run: |
+          cd struct-api
+          docker build -t struct-api . && docker save struct-api > struct-api.tar
 
       - name: SCP to server
         uses: appleboy/scp-action@v0.0.10
@@ -42,5 +41,5 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "struct-api.tar"
+          source: "struct-api/struct-api.tar"
           target: "~/ci-cd/"
