@@ -22,7 +22,7 @@ jobs:
           java-version: '21'
 
       - name: Set up Gradle
-        uses: gradle/setup-gradle@v3
+        uses: gradle/gradle-build-action@v3
 
       - name: Change directory and set working directory
         run: |
