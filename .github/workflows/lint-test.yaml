@@ -18,5 +18,8 @@ jobs:
           distribution: 'adopt'
           java-version: '21'
 
+      - name: Switch to struct-api directory
+        run: cd struct-api
+
       - name: Run Gradle check (lint and test)
-        run: ./struct-api/gradlew check
+        run: ./gradlew check
