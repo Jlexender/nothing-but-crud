@@ -1,0 +1,49 @@
+name: Project Deployment
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+  pull_request:
+    branches:
+      - 'dev'
+
+jobs:
+  struct-api-deployment:
+    strategy:
+       matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    runs-on: os.${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'adopt'
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/setup-gradle@v3
+
+      - name: Change directory and set working directory
+        run: |
+          cd struct-api
+          pwd
+
+      - name: Check with Gradle
+        run: ./gradlew check
+
+      - name: Build docker image and zip it
+        run: docker build -t struct-api . && docker save struct-api > struct-api.tar
+
+      - name: SCP to server
+        uses: appleboy/scp-action@v0.0.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "struct-api.tar"
+          target: "~/ci-cd/"
