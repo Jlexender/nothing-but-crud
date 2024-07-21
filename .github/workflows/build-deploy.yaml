@@ -10,7 +10,7 @@ on:
 
 jobs:
   lint-test:
-    uses: '.github/workflows/lint-test.yaml'
+    uses: ./.github/workflows/lint-test.yaml
 
   build-struct-api:
     needs: [lint-test]
