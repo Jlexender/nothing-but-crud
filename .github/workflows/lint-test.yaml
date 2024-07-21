@@ -1,28 +1,30 @@
 name: Lint and Test the whole project using Gradle
 
 on:
-    push:
-        branches:
-        - 'feature/**'
-    pull_request:
-        branches:
-        - dev
+  push:
+    branches:
+    - 'feature/**'
+  pull_request:
+      branches:
+      - dev
 
 jobs:
-  lint-test-struct-api:
+  check-struct-api:
     runs-on: ubuntu-latest
-    if: success() && contains(github.ref, 'feature/struct-api')
+    if: contains(github.ref, 'feature/struct-api')
+
     steps:
-      - name: Setup Java
-        uses: ./.github/workflows/setup-java.yml
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
         with:
+          distribution: 'adopt'
           java-version: '21'
 
       - name: Change to directory
         run: cd struct-api
 
       - name: Run Gradle Lint
-        run: ./gradlew lint
-
-      - name: Run Gradle Tests
-        run: ./gradlew test
+        run: ./gradlew check
