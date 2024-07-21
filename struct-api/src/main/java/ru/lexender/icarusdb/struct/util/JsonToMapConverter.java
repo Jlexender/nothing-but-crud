@@ -12,14 +12,14 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Map;
 
+
 /**
- * This class is a converter that converts a JSON string to a Map.
- * It uses Jackson's ObjectMapper for the conversion.
- *
- * @see ObjectMapper
- * @see Converter
+ * This class is a converter that converts a JSON string to a Map. It uses Jackson's
+ * ObjectMapper for the conversion.
  *
  * @author Jlexender
+ * @see ObjectMapper
+ * @see Converter
  */
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -39,7 +39,8 @@ public class JsonToMapConverter implements Converter<String, Map<String, String>
     @Override
     public Map<String, String> convert(@NonNull String source) {
         try {
-            return objectMapper.readValue(source, new TypeReference<>() {});
+            return objectMapper.readValue(source, new TypeReference<>() {
+            });
         } catch (IOException e) {
             throw new RuntimeException("Could not convert JSON string to map", e);
         }

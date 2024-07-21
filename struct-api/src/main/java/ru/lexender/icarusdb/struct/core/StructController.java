@@ -30,13 +30,12 @@ import ru.lexender.icarusdb.struct.core.service.StructService;
 import java.util.UUID;
 
 /**
- * This class is a controller that manages operations on Structs.
- * It uses the StructService for the business logic.
- *
- * @see StructService
- * @see Struct
+ * This class is a controller that manages operations on Structs. It uses the
+ * StructService for the business logic.
  *
  * @author Jlexender
+ * @see StructService
+ * @see Struct
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -45,7 +44,9 @@ import java.util.UUID;
 @Tag(name = "Struct Controller", description = "Controller for managing structs")
 @Log4j2
 public class StructController {
+
     StructService structService;
+
     ObjectMapper objectMapper;
 
     /**
@@ -55,17 +56,13 @@ public class StructController {
      */
     @GetMapping
     @Operation(summary = "Get all structs", description = "Fetch all structs from the database")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found all structs"),
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Found all structs")})
     public ResponseEntity<Flux<StructResponse>> findAllStructs() {
         log.info("Fetching all structs");
-        return ResponseEntity.ok(structService.findAll()
-                .map(struct -> {
-                    log.debug("Converting struct: {}", struct);
-                    return objectMapper.convertValue(struct, StructResponse.class);
-                })
-        );
+        return ResponseEntity.ok(structService.findAll().map(struct -> {
+            log.debug("Converting struct: {}", struct);
+            return objectMapper.convertValue(struct, StructResponse.class);
+        }));
     }
 
     /**
@@ -75,13 +72,10 @@ public class StructController {
      */
     @DeleteMapping
     @Operation(summary = "Delete all structs", description = "Delete all structs from the database")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "All structs deleted"),
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "All structs deleted")})
     public Mono<ResponseEntity<Void>> deleteAllStructs() {
         log.info("Deleting all structs");
-        return structService.deleteAll()
-                .then(Mono.just(ResponseEntity.noContent().<Void>build()))
+        return structService.deleteAll().then(Mono.just(ResponseEntity.noContent().<Void>build()))
                 .doOnSuccess(response -> log.debug("All structs deleted successfully"))
                 .doOnError(e -> log.error("Error deleting all structs", e));
     }
@@ -94,14 +88,13 @@ public class StructController {
      */
     @PostMapping
     @Operation(summary = "Create a struct", description = "Create a new struct in the database")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Struct created"),
-            @ApiResponse(responseCode = "400", description = "Invalid struct supplied"),
-    })
-    public Mono<ResponseEntity<UUID>> createStruct(@Valid @RequestBody @Parameter(description = "New struct") StructRequest struct) {
+    @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Struct created"),
+        @ApiResponse(responseCode = "400", description = "Invalid struct supplied")})
+    public Mono<ResponseEntity<UUID>> createStruct(
+        @Valid @RequestBody @Parameter(description = "New struct") StructRequest struct) {
         log.info("Creating new struct: {}", struct);
         return structService.save(objectMapper.convertValue(struct, Struct.class))
-                .map(Struct::getId)
+            .map(Struct::getId)
                 .map(ResponseEntity.status(HttpStatus.CREATED)::body)
                 .doOnSuccess(response -> log.debug("Struct created with ID: {}", response.getBody()))
                 .doOnError(e -> log.error("Error creating struct", e));
@@ -115,27 +108,22 @@ public class StructController {
      */
     @GetMapping("/{id}")
     @Operation(summary = "Get a struct by ID", description = "Fetch a specific struct from the database by its ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the struct"),
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Found the struct"),
             @ApiResponse(responseCode = "400", description = "Invalid id supplied"),
-            @ApiResponse(responseCode = "404", description = "Struct not found"),
-    })
-    public Mono<ResponseEntity<StructResponse>> findStructById(@PathVariable @Parameter(description = "ID of the struct to be fetched") UUID id) {
+        @ApiResponse(responseCode = "404", description = "Struct not found")})
+    public Mono<ResponseEntity<StructResponse>> findStructById(
+        @PathVariable @Parameter(description = "ID of the struct to be fetched") UUID id) {
         log.info("Fetching struct with ID: {}", id);
-        return structService.findById(id)
-                .map(struct -> {
-                    StructResponse structResponse = objectMapper.convertValue(struct, StructResponse.class);
-                    return ResponseEntity.ok(structResponse);
-                })
-                .defaultIfEmpty(ResponseEntity.notFound().build())
-                .doOnSuccess(response -> {
-                    if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
-                        log.debug("Struct with ID {} not found", id);
-                    } else {
-                        log.debug("Struct found: {}", response.getBody());
-                    }
-                })
-                .doOnError(e -> log.error("Error fetching struct with ID: {}", id, e));
+        return structService.findById(id).map(struct -> {
+            StructResponse structResponse = objectMapper.convertValue(struct, StructResponse.class);
+            return ResponseEntity.ok(structResponse);
+        }).defaultIfEmpty(ResponseEntity.notFound().build()).doOnSuccess(response -> {
+            if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+                log.debug("Struct with ID {} not found", id);
+            } else {
+                log.debug("Struct found: {}", response.getBody());
+            }
+        }).doOnError(e -> log.error("Error fetching struct with ID: {}", id, e));
     }
 
     /**
@@ -146,17 +134,16 @@ public class StructController {
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a struct by ID", description = "Delete a specific struct from the database by its ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Struct deleted"),
+    @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Struct deleted"),
             @ApiResponse(responseCode = "400", description = "Invalid id supplied"),
-            @ApiResponse(responseCode = "404", description = "Struct not found"),
-    })
-    public Mono<ResponseEntity<Void>> deleteStructById(@PathVariable @Parameter(description = "ID of the struct to be deleted") UUID id) {
+        @ApiResponse(responseCode = "404", description = "Struct not found")})
+    public Mono<ResponseEntity<Void>> deleteStructById(
+        @PathVariable @Parameter(description = "ID of the struct to be deleted") UUID id) {
         log.info("Deleting struct with ID: {}", id);
         return structService.existsById(id).flatMap(exists -> {
             if (exists) {
                 return structService.deleteById(id)
-                        .then(Mono.just(ResponseEntity.noContent().<Void>build()))
+                    .then(Mono.just(ResponseEntity.noContent().<Void>build()))
                         .doOnSuccess(response -> log.debug("Struct with ID {} deleted successfully", id))
                         .doOnError(e -> log.error("Error deleting struct with ID: {}", id, e));
             } else {
@@ -173,13 +160,10 @@ public class StructController {
      */
     @GetMapping("/count")
     @Operation(summary = "Count all structs", description = "Count all structs in the database")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Counted all structs"),
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Counted all structs")})
     public Mono<ResponseEntity<Long>> countStructs() {
         log.info("Counting all structs");
-        return structService.count()
-                .map(ResponseEntity.ok()::body)
+        return structService.count().map(ResponseEntity.ok()::body)
                 .doOnSuccess(response -> log.debug("Counted all structs: {}", response.getBody()))
                 .doOnError(e -> log.error("Error counting all structs", e));
     }

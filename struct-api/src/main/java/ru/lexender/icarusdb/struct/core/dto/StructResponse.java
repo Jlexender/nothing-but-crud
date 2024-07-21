@@ -1,5 +1,6 @@
 package ru.lexender.icarusdb.struct.core.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,9 +10,10 @@ import java.sql.Timestamp;
 import java.util.Map;
 import java.util.UUID;
 
+
 /**
- * This class represents the StructResponse data transfer object.
- * It includes fields for id, struct_name, struct_fields, and created_at.
+ * This class represents the StructResponse data transfer object. It includes fields for
+ * id, struct_name, struct_fields, and created_at.
  *
  * @author Jlexender
  */
@@ -20,11 +22,17 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 public final class StructResponse {
+
+    @JsonProperty("id")
     UUID id;
 
-    String struct_name;
+    @JsonProperty("struct_name")
+    String structName;
 
-    Map<String, String> struct_fields;
+    @JsonProperty("struct_fields")
+    Map<String, String> structFields;
 
-    Timestamp created_at;
+    @JsonProperty("created_at")
+    Timestamp createdAt;
+
 }

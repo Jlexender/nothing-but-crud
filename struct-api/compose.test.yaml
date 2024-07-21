@@ -13,7 +13,7 @@ services:
       timeout: 5s
       retries: 3
     networks:
-        - struct-api-test
+      - struct-api-test
 
   redis-test:
     image: 'redis:latest'
@@ -29,8 +29,8 @@ services:
       timeout: 5s
       retries: 3
     networks:
-        - struct-api-test
+      - struct-api-test
 
 networks:
   struct-api-test:
-      driver: bridge
+    driver: bridge

@@ -23,7 +23,7 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-public class StructControllerTests {
+public class StructControllerTest {
 
     @Mock
     private StructService structService;
@@ -50,11 +50,7 @@ public class StructControllerTests {
         when(structService.findAll()).thenReturn(Flux.just(struct));
         when(objectMapper.convertValue(struct, StructResponse.class)).thenReturn(structResponse);
 
-        webTestClient.get()
-                .uri("/api/v1/struct")
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk()
+        webTestClient.get().uri("/api/v1/struct").accept(MediaType.APPLICATION_JSON).exchange().expectStatus().isOk()
                 .expectBodyList(StructResponse.class);
     }
 
@@ -62,15 +58,11 @@ public class StructControllerTests {
     public void deleteAllStructs_shouldDeleteAllStructs() {
         when(structService.deleteAll()).thenReturn(Mono.empty());
 
-        webTestClient.delete()
-                .uri("/api/v1/struct")
-                .exchange()
-                .expectStatus().isNoContent();
+        webTestClient.delete().uri("/api/v1/struct").exchange().expectStatus().isNoContent();
     }
 
     @Test
     public void createStruct_shouldNotCreateStruct() {
-        UUID id = UUID.randomUUID();
         StructRequest structRequest = new StructRequest();
         Struct struct = new Struct();
         StructResponse structResponse = new StructResponse();
@@ -79,12 +71,8 @@ public class StructControllerTests {
         when(structService.save(any(Struct.class))).thenReturn(Mono.just(struct));
         when(objectMapper.convertValue(struct, StructResponse.class)).thenReturn(structResponse);
 
-        webTestClient.post()
-                .uri("/api/v1/struct")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new LinkedHashMap<>())
-                .exchange()
-                .expectStatus().isBadRequest();
+        webTestClient.post().uri("/api/v1/struct").contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new LinkedHashMap<>()).exchange().expectStatus().isBadRequest();
     }
 
     @Test
@@ -100,12 +88,8 @@ public class StructControllerTests {
         when(structService.save(any(Struct.class))).thenReturn(Mono.just(struct));
         when(objectMapper.convertValue(struct, StructResponse.class)).thenReturn(structResponse);
 
-        webTestClient.post()
-                .uri("/api/v1/struct")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(structRequest)
-                .exchange()
-                .expectStatus().isCreated();
+        webTestClient.post().uri("/api/v1/struct").contentType(MediaType.APPLICATION_JSON).bodyValue(structRequest)
+                .exchange().expectStatus().isCreated();
     }
 
     @Test
@@ -117,12 +101,8 @@ public class StructControllerTests {
         when(structService.findById(id)).thenReturn(Mono.just(struct));
         when(objectMapper.convertValue(struct, StructResponse.class)).thenReturn(structResponse);
 
-        webTestClient.get()
-                .uri("/api/v1/struct/{id}", id)
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(StructResponse.class);
+        webTestClient.get().uri("/api/v1/struct/{id}", id).accept(MediaType.APPLICATION_JSON).exchange().expectStatus()
+                .isOk().expectBody(StructResponse.class);
     }
 
     @Test
@@ -131,20 +111,14 @@ public class StructControllerTests {
 
         when(structService.findById(id)).thenReturn(Mono.empty());
 
-        webTestClient.get()
-                .uri("/api/v1/struct/{id}", id)
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isNotFound();
+        webTestClient.get().uri("/api/v1/struct/{id}", id).accept(MediaType.APPLICATION_JSON).exchange().expectStatus()
+                .isNotFound();
     }
 
     @Test
     public void findStructById_shouldReturnBadRequest() {
-        webTestClient.get()
-                .uri("/api/v1/struct/ZOV")
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isBadRequest();
+        webTestClient.get().uri("/api/v1/struct/ZOV").accept(MediaType.APPLICATION_JSON).exchange().expectStatus()
+                .isBadRequest();
     }
 
     @Test
@@ -154,11 +128,7 @@ public class StructControllerTests {
         when(structService.deleteById(id)).thenReturn(Mono.empty());
         when(structService.existsById(id)).thenReturn(Mono.just(true));
 
-
-        webTestClient.delete()
-                .uri("/api/v1/struct/{id}", id)
-                .exchange()
-                .expectStatus().isNoContent();
+        webTestClient.delete().uri("/api/v1/struct/{id}", id).exchange().expectStatus().isNoContent();
     }
 
     @Test
@@ -168,30 +138,21 @@ public class StructControllerTests {
         when(structService.deleteById(id)).thenReturn(Mono.<Void>empty());
         when(structService.existsById(id)).thenReturn(Mono.just(false));
 
-        webTestClient.delete()
-                .uri("/api/v1/struct/{id}", id)
-                .exchange()
-                .expectStatus().isNotFound();
+        webTestClient.delete().uri("/api/v1/struct/{id}", id).exchange().expectStatus().isNotFound();
     }
 
     @Test
     public void deleteStructById_shouldReturnBadRequest() {
 
-        webTestClient.delete()
-                .uri("/api/v1/struct/ZOV")
-                .exchange()
-                .expectStatus().isBadRequest();
+        webTestClient.delete().uri("/api/v1/struct/ZOV").exchange().expectStatus().isBadRequest();
     }
 
     @Test
     public void countStructs_shouldCountAllStructs() {
         when(structService.count()).thenReturn(Mono.just(1L));
 
-        webTestClient.get()
-                .uri("/api/v1/struct/count")
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(Long.class);
+        webTestClient.get().uri("/api/v1/struct/count").accept(MediaType.APPLICATION_JSON).exchange().expectStatus()
+                .isOk().expectBody(Long.class);
     }
+
 }

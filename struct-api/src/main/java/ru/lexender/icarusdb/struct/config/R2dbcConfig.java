@@ -12,25 +12,25 @@ import ru.lexender.icarusdb.struct.util.MapToJsonConverter;
 import java.util.List;
 
 /**
- * This class is a configuration class for R2DBC.
- * It includes a bean for R2dbcCustomConversions.
- *
- * @see R2dbcCustomConversions
+ * This class is a configuration class for R2DBC. It includes a bean for
+ * R2dbcCustomConversions.
  *
  * @author Jlexender
+ * @see R2dbcCustomConversions
  */
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Configuration
 public class R2dbcConfig {
+
     JsonToMapConverter jsonToMapConverter;
+
     MapToJsonConverter mapToJsonConverter;
 
     @Bean
     public R2dbcCustomConversions customConversions() {
-        return R2dbcCustomConversions.of(MySqlDialect.INSTANCE, List.of(
-                jsonToMapConverter,
-                mapToJsonConverter)
-        );
+        return R2dbcCustomConversions.of(MySqlDialect.INSTANCE,
+                List.of(jsonToMapConverter, mapToJsonConverter));
     }
+
 }

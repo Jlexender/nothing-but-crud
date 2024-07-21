@@ -17,19 +17,19 @@ import ru.lexender.icarusdb.struct.core.repository.StructRepository;
 import java.util.UUID;
 
 /**
- * This class provides services for the Struct model.
- * It uses the StructRepository to interact with the database.
- *
- * @see StructRepository
- * @see Struct
+ * This class provides services for the Struct model. It uses the StructRepository to
+ * interact with the database.
  *
  * @author Jlexender
+ * @see StructRepository
+ * @see Struct
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Service
 @Log4j2
 public class StructService {
+
     StructRepository structRepository;
 
     /**
@@ -129,4 +129,5 @@ public class StructService {
                 .doOnSuccess(count -> log.debug("Counted all structs: {}", count))
                 .doOnError(e -> log.error("Error counting all structs", e));
     }
+
 }

@@ -7,9 +7,8 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 /**
  * This class is a configuration class for WebFlux.
  *
- * @see WebFluxConfigurer
- *
  * @author Jlexender
+ * @see WebFluxConfigurer
  */
 @Configuration
 @EnableWebFlux

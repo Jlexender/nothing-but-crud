@@ -17,13 +17,12 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 
 /**
- * This class is a configuration class for Redis.
- * It includes beans for RedisTemplate and RedisCacheManager.
- *
- * @see RedisTemplate
- * @see RedisCacheManager
+ * This class is a configuration class for Redis. It includes beans for RedisTemplate and
+ * RedisCacheManager.
  *
  * @author Jlexender
+ * @see RedisTemplate
+ * @see RedisCacheManager
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -44,12 +43,13 @@ public class RedisConfig {
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(15))
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+                .entryTtl(Duration.ofMinutes(15)).serializeKeysWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(
+                                new StringRedisSerializer())).serializeValuesWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(
+                                new GenericJackson2JsonRedisSerializer()));
 
-        return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(config)
-                .build();
+        return RedisCacheManager.builder(connectionFactory).cacheDefaults(config).build();
     }
+
 }

@@ -12,13 +12,12 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
- * This class is a converter that converts a Map to a JSON string.
- * It uses Jackson's ObjectMapper for the conversion.
- *
- * @see ObjectMapper
- * @see Converter
+ * This class is a converter that converts a Map to a JSON string. It uses Jackson's
+ * ObjectMapper for the conversion.
  *
  * @author Jlexender
+ * @see ObjectMapper
+ * @see Converter
  */
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
