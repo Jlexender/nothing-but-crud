@@ -10,10 +10,7 @@ on:
 
 jobs:
   struct-api-deployment:
-    strategy:
-       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
-    runs-on: os.${{ matrix.os }}
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
