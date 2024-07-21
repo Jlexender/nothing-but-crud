@@ -9,25 +9,21 @@ on:
       - 'dev'
 
 jobs:
+  verification:
+    uses: ./.github/workflows/verification.yaml
+
   struct-api-deployment:
+    needs: verification
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 21 adopt
         uses: actions/setup-java@v4
         with:
           distribution: 'adopt'
           java-version: '21'
-
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v3
-
-      - name: Check with Gradle
-        run: |
-          cd struct-api
-          ./gradlew check
 
       - name: Build docker image and zip it
         run: |
@@ -42,4 +38,7 @@ jobs:
           password: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "struct-api/struct-api.tar"
-          target: "~/ci-cd/"
+          target: "$HOME/ci-cd/"
+
+      - name: Finish deployment
+        run: echo "Deployment finished, check the server (•‿•)"
