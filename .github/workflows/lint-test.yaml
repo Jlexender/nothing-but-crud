@@ -1,12 +1,7 @@
-name: Lint and Test the whole project using Gradle
+name: Check using Gradle
 
 on:
-  push:
-    branches:
-    - 'feature/**'
-  pull_request:
-      branches:
-      - dev
+  [workflow_call]
 
 jobs:
   check-struct-api:
@@ -25,9 +20,6 @@ jobs:
 
       - name: Change directory
         run: cd struct-api
-
-      - name: List files
-        run: ls -la
 
       - name: Run Gradle check (lint and test)
         run: ./gradlew check
