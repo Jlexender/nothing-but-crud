@@ -19,7 +19,7 @@ jobs:
           java-version: '21'
 
       - name: Setup Gradle Wrapper
-        uses: gradle/gradle-build-action@v4
+        uses: gradle/gradle-build-action@v3
 
       - name: Run Gradle check (lint and test)
         run: |
