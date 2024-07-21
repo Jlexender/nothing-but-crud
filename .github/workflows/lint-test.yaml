@@ -12,11 +12,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup JDK
+      - name: Setup JDK 21 alpine
         uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
+          distribution: 'alpine'
           java-version: '21'
+
+      - name: Setup Gradle Wrapper
+        uses: gradle/gradle-build-action@v4
 
       - name: Run Gradle check (lint and test)
         run: |

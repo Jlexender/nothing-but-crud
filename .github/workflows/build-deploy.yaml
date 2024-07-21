@@ -12,25 +12,6 @@ jobs:
   lint-test:
     uses: ./.github/workflows/lint-test.yaml
 
-  build-struct-api:
-    needs: [lint-test]
-    runs-on: ubuntu-latest
-    if: contains(github.ref, 'feature/struct-api')
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'adopt'
-          java-version: '21'
-
-      - name: Build struct-api
-        run: |
-          cd struct-api
-          ./gradlew build
-
   deploy-struct-api:
     needs: [build-struct-api]
     runs-on: ubuntu-latest
@@ -39,11 +20,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup JDK 21
+      - name: Setup JDK 21 alpine
         uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
+          distribution: 'alpine'
           java-version: '21'
+
+      - name: Setup Gradle Wrapper
+        uses: gradle/gradle-build-action@v4
+
+      - name: Build app image
+        run: |
+          cd struct-api
+          docker build -t struct-api .
+
+      - name: Zipping the image
+        run: |
+          cd struct-api
+          docker save struct-api:latest | gzip > struct-api.tar.gz
 
       - name: Deploy with SCP
         uses: appleboy/scp-action@v0.0.10
@@ -51,5 +45,5 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "struct-api/build/**/*.jar"
-          target: "$HOME/ssh_uploads/"
+          source: "struct-api/struct-api.tar.gz"
+          target: "$HOME/ci-cd/"
