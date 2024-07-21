@@ -13,7 +13,7 @@ jobs:
     uses: ./.github/workflows/lint-test.yaml
 
   deploy-struct-api:
-    needs: [build-struct-api]
+    needs: [lint-test]
     runs-on: ubuntu-latest
     if: contains(github.ref, 'feature/struct-api')
     steps:
