@@ -12,10 +12,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup JDK 21 alpine
+      - name: Setup JDK 21 adopt
         uses: actions/setup-java@v4
         with:
-          distribution: 'alpine'
+          distribution: 'adopt'
           java-version: '21'
 
       - name: Setup Gradle Wrapper
