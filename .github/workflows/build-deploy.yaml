@@ -26,11 +26,8 @@ jobs:
           distribution: 'adopt'
           java-version: '21'
 
-      - name: Navigate to struct-api
-        run: cd struct-api
-
       - name: Build struct-api
-        run: ./gradlew build
+        run: ./struct-api/gradlew build
 
   deploy-struct-api:
     needs: [build-struct-api]
@@ -46,15 +43,11 @@ jobs:
           distribution: 'adopt'
           java-version: '21'
 
-      - name: Navigate to struct-api
-        run: cd struct-api
-
       - name: Deploy with SCP
         uses: appleboy/scp-action@v0.0.10
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "build/**/*.jar"
+          source: "structs-api/build/**/*.jar"
           target: "$HOME/ssh_uploads/"
-# End of file

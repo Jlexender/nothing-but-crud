@@ -18,8 +18,5 @@ jobs:
           distribution: 'adopt'
           java-version: '21'
 
-      - name: Change directory and list files
-        run: cd struct-api && ls
-
       - name: Run Gradle check (lint and test)
-        run: ./gradlew check
+        run: ./struct-api/gradlew check
