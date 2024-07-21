@@ -27,7 +27,9 @@ jobs:
           java-version: '21'
 
       - name: Build struct-api
-        run: ./struct-api/gradlew build
+        run: |
+          cd struct-api
+          ./gradlew build
 
   deploy-struct-api:
     needs: [build-struct-api]
@@ -49,5 +51,5 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "structs-api/build/**/*.jar"
+          source: "struct-api/build/**/*.jar"
           target: "$HOME/ssh_uploads/"
