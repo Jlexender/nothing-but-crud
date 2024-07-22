@@ -16,6 +16,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * This class is used to handle exceptions that occur in the application.
+ * @author Jlexender
+ * @see ResponseEntityExceptionHandler
+ * @see ExceptionHandler
+ * @see ControllerAdvice
+ */
+
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(IOException.class)
