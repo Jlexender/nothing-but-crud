@@ -34,8 +34,8 @@ jobs:
       - name: Build docker image and zip it
         run: |
           cd ${{ env.BRANCH_SUFFIX }}
-          IMAGE_NAME=${{ env.BRANCH_SUFFIX }}
-          docker build -t "$IMAGE_NAME" . && docker save "$IMAGE_NAME" > "${IMAGE_NAME}.tar"
+          IMAGE_NAME="idb-${{ env.BRANCH_SUFFIX }}"
+          docker build -t "$IMAGE_NAME:latest" . && docker save "$IMAGE_NAME" > "${IMAGE_NAME}.tar"
 
       - name: SCP to server
         uses: appleboy/scp-action@v0.0.10
@@ -44,8 +44,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: $${{ env.BRANCH_SUFFIX }}/*.tar
-          target: $HOME/ci-cd/
+          source: "${{ env.BRANCH_SUFFIX }}/*.tar"
+          target: "$HOME/ci-cd/"
 
       - name: Finish deployment
         run: echo "Deployment finished, check the server (•‿•)"
