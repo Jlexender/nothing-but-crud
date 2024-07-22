@@ -82,7 +82,7 @@ tasks.withType<Test> {
 }
 
 checkstyle {
-    configFile = file("../config/checkstyle/checkstyle.xml")
+    configFile = file("config/checkstyle/checkstyle.xml")
 }
 
 tasks.withType<Checkstyle> {
