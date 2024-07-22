@@ -1,0 +1,18 @@
+spring:
+  profiles:
+    default: dev
+
+  application:
+    name: template
+
+  # R2DBC configuration
+  r2dbc:
+    url: ${SPRING_R2DBC_URL}
+    username: ${SPRING_R2DBC_USERNAME}
+    password: ${SPRING_R2DBC_PASSWORD}
+
+  # Flyway configuration
+  flyway:
+    url: ${SPRING_FLYWAY_URL}
+    user: ${SPRING_FLYWAY_USER}
+    password: ${SPRING_FLYWAY_PASSWORD}

@@ -1,0 +1,9 @@
+spring:
+  # Import configuration
+  config:
+    import: |
+      optional:file:./env/dev/idb-template.env[.properties],
+      optional:file:./env/dev/idb-template-secrets.env[.properties]
+
+    activate:
+      on-profile: dev
