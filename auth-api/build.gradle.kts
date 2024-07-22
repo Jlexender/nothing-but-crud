@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.3.2"
     id("io.spring.dependency-management") version "1.1.6"
+    checkstyle
 }
 
 group = "ru.lexender"
@@ -59,10 +60,25 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
     compileOnly("org.projectlombok:lombok")
 
-
     // Development only dependencies
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
+}
+
+checkstyle {
+    configFile = file("config/checkstyle/checkstyle.xml")
+}
+
+tasks.withType<Checkstyle> {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+tasks.check {
+    dependsOn("checkstyleMain")
+    dependsOn("checkstyleTest")
 }
 
 tasks.withType<Test> {
