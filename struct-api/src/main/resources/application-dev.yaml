@@ -1,9 +1,0 @@
-spring:
-  # Import configuration
-  config:
-    import: |
-      optional:file:./env/dev/idb-struct.env[.properties],
-      optional:file:./env/dev/idb-struct-secrets.env[.properties]
-
-    activate:
-      on-profile: dev
