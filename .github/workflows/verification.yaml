@@ -26,6 +26,7 @@ jobs:
       - name: Run verification with Gradle
         run: |
           BRANCH_SUFFIX=${{ env.BRANCH_SUFFIX }}
+          cp -r config/ $BRANCH_SUFFIX
           cd "$BRANCH_SUFFIX"
           ./gradlew check
 
