@@ -1,32 +1,4 @@
 services:
-
-  #  cassandra:
-  #    image: 'cassandra:latest'
-  #    restart: always
-  #    env_file:
-  #      - './env/dev/cassandra.env'
-  #      - './env/dev/cassandra-secrets.env'
-  #    ports:
-  #      - '3042:9042'
-  #    healthcheck:
-  #      test: 'cqlsh --execute "DESCRIBE KEYSPACES"'
-  #      interval: 20s
-  #      timeout: 5s
-  #      retries: 3
-  #    volumes:
-  #      - './out/cassandra_data:/var/lib/cassandra'
-  #
-  #  cassandra-init:
-  #    container_name: 'cassandra-load-keyspace'
-  #    image: 'cassandra:latest'
-  #    depends_on:
-  #      cassandra:
-  #        condition: service_healthy
-  #    volumes:
-  #      - './initdb/cassandra:/initdb'
-  #      - './out/cassandra_data:/var/lib/cassandra'
-  #    command: /bin/bash -c "echo Initializing Cassandra && cqlsh cassandra 9042 -f /initdb/*;"
-
   redis:
     image: 'redis:latest'
     restart: always
@@ -56,8 +28,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    #    volumes:
-    #      - './out/postgres_data:/var/lib/postgresql/data'
+    volumes:
+      - './out/postgres_data:/var/lib/postgresql/data'
     networks:
       - struct-api
 
@@ -70,8 +42,6 @@ services:
     ports:
       - '3080:8080'
     depends_on:
-      #      cassandra:
-      #        condition: service_healthy
       redis:
         condition: service_healthy
       postgres:
