@@ -1,0 +1,25 @@
+spring:
+  profiles:
+    default: dev
+
+  application:
+    name: auth-api
+
+  config:
+    import: file:./env/dev/idb-auth.env[.properties], file:./env/dev/idb-auth-secrets.env[.properties]
+
+  # Cassandra configuration
+  cassandra:
+    keyspace-name: ${SPRING_CASSANDRA_KEYSPACE_NAME}
+    contact-points: ${SPRING_CASSANDRA_CONTACT_POINTS}
+    port: ${SPRING_CASSANDRA_PORT}
+    username: ${SPRING_CASSANDRA_USER}
+    password: ${SPRING_CASSANDRA_PASSWORD}
+    local-datacenter: ${SPRING_CASSANDRA_LOCAL_DATACENTER}
+    schema-action: ${SPRING_CASSANDRA_SCHEMA_ACTION}
+
+  # Flyway configuration
+  flyway:
+    url: ${SPRING_FLYWAY_URL}
+    user: ${SPRING_FLYWAY_USER}
+    password: ${SPRING_FLYWAY_PASSWORD}

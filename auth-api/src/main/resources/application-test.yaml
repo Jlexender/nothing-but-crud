@@ -1,0 +1,9 @@
+spring:
+  # Import configuration
+  config:
+    import: |
+      optional:file:./env/test/idb-auth.env[.properties],
+      optional:file:./env/test/idb-auth-secrets.env[.properties]
+
+    activate:
+      on-profile: test

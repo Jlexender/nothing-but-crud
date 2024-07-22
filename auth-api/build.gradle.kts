@@ -31,17 +31,18 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-data-cassandra-reactive")
+    implementation("org.springframework.boot:spring-boot-starter-data-rest")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
 
     // Database and JDBC
     implementation("org.springframework.session:spring-session-core")
+    implementation("org.springframework.data:spring-data-rest-hal-explorer")
+    implementation("org.springframework.kafka:spring-kafka")
 
     // API documentation
-    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.6.0")
-    implementation("org.springframework.kafka:spring-kafka")
-    implementation("org.springframework.data:spring-data-rest-hal-explorer")
-    implementation("org.springframework.boot:spring-boot-starter-mail")
-    implementation("org.springframework.boot:spring-boot-starter-data-rest")
-    implementation("org.springframework.boot:spring-boot-starter-data-cassandra-reactive")
+    implementation("org.springdoc:springdoc-openapi-ui:1.8.0")
+    implementation("org.springdoc:springdoc-openapi-data-rest:1.8.0")
 
     // Test dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test")

@@ -9,7 +9,7 @@ services:
     healthcheck:
       test: 'cqlsh --execute "DESCRIBE KEYSPACES"'
       interval: 20s
-      timeout: 5s
+      timeout: 30s
       retries: 3
     volumes:
       - './out/cassandra_data:/var/lib/cassandra'
