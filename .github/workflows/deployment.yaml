@@ -44,8 +44,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "*.tar"  # Upload all tar files
-          target: "$HOME/ci-cd/"
+          source: $${{ env.BRANCH_SUFFIX }}/*.tar
+          target: $HOME/ci-cd/
 
       - name: Finish deployment
         run: echo "Deployment finished, check the server (•‿•)"
