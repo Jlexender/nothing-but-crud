@@ -1,13 +1,13 @@
-package ru.lexender.icarusdb;
+package ru.lexender.icarusdb.auth;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AuthApiApplication {
+public class IcarusDbAuthApiApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(AuthApiApplication.class, args);
+        SpringApplication.run(IcarusDbAuthApiApplication.class, args);
     }
 
 }
