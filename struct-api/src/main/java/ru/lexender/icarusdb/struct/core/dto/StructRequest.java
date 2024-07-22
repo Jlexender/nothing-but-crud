@@ -24,7 +24,6 @@ import java.util.Map;
 @AllArgsConstructor
 @Data
 public final class StructRequest {
-
     @JsonProperty("struct_name")
     @Size(min = 1, max = 255)
     @NotBlank
@@ -33,5 +32,4 @@ public final class StructRequest {
     @JsonProperty("struct_fields")
     @NotNull
     Map<String, String> structFields;
-
 }
