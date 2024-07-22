@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(IOException.class)
-    public Mono<ResponseEntity<Object>> handleIOException(IOException ex, WebRequest request) {
+    public Mono<ResponseEntity<Object>> handleIOException(IOException ex,
+                                                          WebRequest request) {
         return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("IOException"));
     }
 
