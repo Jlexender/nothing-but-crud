@@ -1,0 +1,26 @@
+services:
+  cassandra:
+    image: 'cassandra:latest'
+    env_file:
+      - './env/dev/cassandra.env'
+      - './env/dev/cassandra-secrets.env'
+    ports:
+      - '3042:9042'
+    healthcheck:
+      test: 'cqlsh --execute "DESCRIBE KEYSPACES"'
+      interval: 20s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - './out/cassandra_data:/var/lib/cassandra'
+
+  cassandra-init:
+    container_name: 'cassandra-init'
+    image: 'cassandra:latest'
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    volumes:
+      - './initdb/cassandra:/initdb'
+      - './out/cassandra_data:/var/lib/cassandra'
+    command: /bin/bash -c "echo Initializing Cassandra && cqlsh cassandra 9042 -f /initdb/*;"
