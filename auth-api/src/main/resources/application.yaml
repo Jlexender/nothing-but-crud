@@ -1,12 +1,12 @@
 spring:
   profiles:
-    default: dev
+    active: dev
 
   application:
     name: auth-api
 
-  config:
-    import: file:./env/dev/idb-auth.env[.properties], file:./env/dev/idb-auth-secrets.env[.properties]
+  main:
+    web-application-type: reactive
 
   # Cassandra configuration
   cassandra:
