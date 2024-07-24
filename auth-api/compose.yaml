@@ -1,4 +1,20 @@
 services:
+  redis:
+    image: 'redis:latest'
+    restart: always
+    env_file:
+      - './env/dev/redis.env'
+      - './env/dev/redis-secrets.env'
+    ports:
+      - '3079:6379'
+    healthcheck:
+      test: 'redis-cli ping'
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - auth-api
+
   cassandra:
     image: 'cassandra:latest'
     env_file:

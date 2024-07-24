@@ -27,19 +27,19 @@ repositories {
 dependencies {
     // Spring Boot starters
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-//    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-data-cassandra-reactive")
-//    implementation("org.springframework.boot:spring-boot-starter-mail")
 
     // Database and JDBC
-//    implementation("org.springframework.session:spring-session-core")
-//    implementation("org.springframework.kafka:spring-kafka")
+    implementation("org.springframework.kafka:spring-kafka")
 
     // API documentation
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.6.0")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.springframework.session:spring-session-data-redis")
 
     // Test dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test")

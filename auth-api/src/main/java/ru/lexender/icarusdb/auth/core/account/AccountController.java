@@ -38,7 +38,7 @@ import java.util.Set;
 @Log4j2
 @Validated
 @RestController
-@RequestMapping("/api/v1/account")
+@RequestMapping("/api/v1/auth/account")
 @Tag(name = "Account", description = "Account API endpoints")
 public class AccountController {
     ObjectMapper objectMapper;
@@ -147,5 +147,10 @@ public class AccountController {
                 }).thenReturn(ResponseEntity.noContent().build())
                 .doOnSuccess(aVoid -> log.info("Authorities changed: {}", username))
                 .doOnError(throwable -> log.error("Error changing authorities: {}", throwable.getMessage()));
+    }
+
+    @GetMapping("/hello")
+    public Mono<ResponseEntity<String>> hello() {
+        return Mono.just(ResponseEntity.ok("Hello, World!"));
     }
 }
