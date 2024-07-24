@@ -44,7 +44,10 @@ public class AccountController {
     ObjectMapper objectMapper;
     AccountService accountService;
 
-    @Operation(summary = "Create a new account", description = "Create a new account with the provided details")
+    @Operation(
+            summary = "Create a new account",
+            description = "Create a new account with the provided details"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully created account",
                     content = {@Content(mediaType = "application/json",
@@ -53,7 +56,7 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/signup")
-    public Mono<ResponseEntity<AccountResponse>> signup(@Valid @RequestBody SignupRequest request) {
+    public Mono<ResponseEntity<AccountResponse>> create(@Valid @RequestBody SignupRequest request) {
         return accountService.save(objectMapper.convertValue(request, Account.class))
                 .map(account -> objectMapper.convertValue(account, AccountResponse.class))
                 .map(ResponseEntity::ok)
@@ -61,7 +64,10 @@ public class AccountController {
                 .doOnError(throwable -> log.error("Error creating account: {}", throwable.getMessage()));
     }
 
-    @Operation(summary = "Retrieve an account by username", description = "Retrieve account details using username")
+    @Operation(
+            summary = "Retrieve an account by username",
+            description = "Retrieve account details using username"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved account",
                     content = {@Content(mediaType = "application/json",
@@ -70,7 +76,8 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/{username}")
-    public Mono<ResponseEntity<AccountResponse>> getAccountByUsername(@Parameter(description = "Username of the account to be retrieved") @PathVariable Username username) {
+    public Mono<ResponseEntity<AccountResponse>> getByUsername(@Parameter(description = "Username of the account")
+                                                              @PathVariable Username username) {
         return accountService.findByUsername(username.value())
                 .map(account -> objectMapper.convertValue(account, AccountResponse.class))
                 .map(ResponseEntity::ok)
@@ -78,29 +85,38 @@ public class AccountController {
                 .doOnError(throwable -> log.error("Error retrieving account: {}", throwable.getMessage()));
     }
 
-    @Operation(summary = "Change lock status for an account", description = "Lock or unlock an account by username")
+    @Operation(
+            summary = "Change lock status for an account",
+            description = "Lock or unlock an account by username"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Successfully changed lock status"),
             @ApiResponse(responseCode = "404", description = "Account not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PatchMapping("/{username}/lock")
-    public Mono<ResponseEntity<Object>> changeLockForUsername(@Parameter(description = "Username of the account") @PathVariable Username username,
-                                                              @Parameter(description = "New lock status") @RequestParam boolean lock) {
+    public Mono<ResponseEntity<Object>> changeLockByUsername(@Parameter(description = "Username of the account")
+                                                              @PathVariable Username username,
+                                                              @Parameter(description = "New lock status")
+                                                              @RequestParam boolean lock) {
         return accountService.setLockByUsername(username.value(), lock)
                 .thenReturn(ResponseEntity.noContent().build())
                 .doOnSuccess(aVoid -> log.info("Account locked: {}", username))
                 .doOnError(throwable -> log.error("Error locking account: {}", throwable.getMessage()));
     }
 
-    @Operation(summary = "Change password for an account", description = "Change the password of an account by username")
+    @Operation(
+            summary = "Change password for an account",
+            description = "Change the password of an account by username"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Successfully changed password"),
             @ApiResponse(responseCode = "404", description = "Account not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PatchMapping("/{username}/password")
-    public Mono<ResponseEntity<Object>> changePasswordForUsername(@Parameter(description = "Username of the account") @PathVariable Username username,
+    public Mono<ResponseEntity<Object>> changePasswordByUsername(@Parameter(description = "Username of the account")
+                                                                  @PathVariable Username username,
                                                                   @Valid @RequestBody Password newPassword) {
         return accountService.findByUsername(username.value())
                 .flatMap(account -> {
@@ -111,16 +127,19 @@ public class AccountController {
                 .doOnError(throwable -> log.error("Error changing password: {}", throwable.getMessage()));
     }
 
-    @Operation(summary = "Change authorities for an account", description = "Change the authorities of an account by username")
+    @Operation(
+            summary = "Change authorities for an account",
+            description = "Change the authorities of an account by username"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Successfully changed authorities"),
             @ApiResponse(responseCode = "404", description = "Account not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PatchMapping("/{username}/authorities")
-    public Mono<ResponseEntity<Object>> changeAuthoritiesByUsername(
-            @Parameter(description = "Username of the account") @PathVariable Username username,
-            @Parameter(description = "New set of authorities for the account") @RequestBody Set<AccountAuthorities> authorities) {
+    public Mono<ResponseEntity<Object>> changeAuthoritiesByUsername(@Parameter(description = "Username of the account")
+                                                                    @PathVariable Username username,
+                                                                    @RequestBody Set<AccountAuthorities> authorities) {
         return accountService.findByUsername(username.value())
                 .flatMap(account -> {
                     account.setAccountAuthorities(authorities);

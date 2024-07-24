@@ -21,7 +21,13 @@ public class SecurityConfig {
         return http.authorizeExchange(exchange -> {
                     exchange.pathMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/signup").permitAll()
                             .pathMatchers(HttpMethod.GET, "/actuator/**").permitAll()
-                            .pathMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml", "/swagger-resources/**", "/webjars/**").permitAll()
+                            .pathMatchers(HttpMethod.GET,
+                                    "/swagger-ui.html",
+                                    "/swagger-ui/**",
+                                    "/v3/api-docs/**",
+                                    "/v3/api-docs.yaml",
+                                    "/swagger-resources/**",
+                                    "/webjars/**").permitAll()
                             .anyExchange().authenticated();
                 })
                 .build();
