@@ -18,7 +18,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {
-        return http.authorizeExchange(exchange -> {
+        return http.authorizeExchange(exchange ->
                     exchange.pathMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/signup").permitAll()
                             .pathMatchers(HttpMethod.GET, "/actuator/**").permitAll()
                             .pathMatchers(HttpMethod.GET,
@@ -28,9 +28,7 @@ public class SecurityConfig {
                                     "/v3/api-docs.yaml",
                                     "/swagger-resources/**",
                                     "/webjars/**").permitAll()
-                            .anyExchange().authenticated();
-                })
-                .build();
+                            .anyExchange().authenticated()).build();
     }
 
     @Bean
