@@ -35,3 +35,7 @@ spring:
           auth: ${SPRING_MAIL_SMTP_AUTH}
           starttls:
             enable: ${SPRING_MAIL_SMTP_STARTTLS_ENABLE}
+
+  session:
+    timeout: ${SPRING_SESSION_TIMEOUT}
+

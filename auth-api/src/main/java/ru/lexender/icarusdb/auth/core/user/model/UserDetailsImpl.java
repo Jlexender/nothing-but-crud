@@ -1,4 +1,4 @@
-package ru.lexender.icarusdb.auth.core.userdetails.model;
+package ru.lexender.icarusdb.auth.core.user.model;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

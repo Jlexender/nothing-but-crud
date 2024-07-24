@@ -6,7 +6,7 @@ services:
       - './env/dev/redis.env'
       - './env/dev/redis-secrets.env'
     ports:
-      - '3079:6379'
+      - '3279:6379'
     healthcheck:
       test: 'redis-cli ping'
       interval: 10s
@@ -21,7 +21,7 @@ services:
       - './env/dev/cassandra.env'
       - './env/dev/cassandra-secrets.env'
     ports:
-      - '3042:9042'
+      - '3242:9042'
     healthcheck:
       test: 'cqlsh --execute "DESCRIBE KEYSPACES"'
       interval: 20s

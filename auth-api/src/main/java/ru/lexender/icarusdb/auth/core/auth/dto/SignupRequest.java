@@ -1,9 +1,10 @@
-package ru.lexender.icarusdb.auth.core.account.dto;
+package ru.lexender.icarusdb.auth.core.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
+import ru.lexender.icarusdb.auth.core.account.util.Email;
+import ru.lexender.icarusdb.auth.core.account.util.Password;
+import ru.lexender.icarusdb.auth.core.account.util.Username;
 
 public record SignupRequest(
         @Valid
@@ -12,7 +13,7 @@ public record SignupRequest(
         Password password,
         @Valid @JsonProperty("password_repeat")
         Password passwordRepeat,
-        @NotNull(message = "Email must not be null") @Email(message = "Email must be a valid email address")
-        String email
+        @Valid
+        Email email
 ) {
 }

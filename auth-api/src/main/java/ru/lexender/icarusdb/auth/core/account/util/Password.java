@@ -1,4 +1,4 @@
-package ru.lexender.icarusdb.auth.core.account.dto;
+package ru.lexender.icarusdb.auth.core.account.util;
 
 import jakarta.validation.constraints.Size;
 

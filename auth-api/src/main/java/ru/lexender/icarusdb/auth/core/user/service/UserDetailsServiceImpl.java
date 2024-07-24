@@ -1,4 +1,4 @@
-package ru.lexender.icarusdb.auth.core.userdetails.service;
+package ru.lexender.icarusdb.auth.core.user.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import ru.lexender.icarusdb.auth.core.account.service.AccountService;
-import ru.lexender.icarusdb.auth.core.userdetails.model.UserDetailsImpl;
+import ru.lexender.icarusdb.auth.core.user.model.UserDetailsImpl;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor

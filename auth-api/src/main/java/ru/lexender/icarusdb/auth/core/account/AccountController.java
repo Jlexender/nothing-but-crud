@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -22,14 +23,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import ru.lexender.icarusdb.auth.core.account.dto.AccountRequest;
 import ru.lexender.icarusdb.auth.core.account.dto.AccountResponse;
-import ru.lexender.icarusdb.auth.core.account.dto.Password;
-import ru.lexender.icarusdb.auth.core.account.dto.SignupRequest;
-import ru.lexender.icarusdb.auth.core.account.dto.Username;
 import ru.lexender.icarusdb.auth.core.account.model.Account;
 import ru.lexender.icarusdb.auth.core.account.model.AccountAuthorities;
 import ru.lexender.icarusdb.auth.core.account.service.AccountService;
+import ru.lexender.icarusdb.auth.core.account.util.Password;
+import ru.lexender.icarusdb.auth.core.account.util.Username;
 
 import java.util.Set;
 
@@ -44,6 +46,7 @@ public class AccountController {
     ObjectMapper objectMapper;
     AccountService accountService;
 
+
     @Operation(
             summary = "Create a new account",
             description = "Create a new account with the provided details"
@@ -55,13 +58,13 @@ public class AccountController {
             @ApiResponse(responseCode = "400", description = "Invalid request data"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PostMapping("/signup")
-    public Mono<ResponseEntity<AccountResponse>> create(@Valid @RequestBody SignupRequest request) {
+    @PostMapping
+    public Mono<ResponseEntity<AccountResponse>> create(@Valid @RequestBody AccountRequest request) {
         return accountService.save(objectMapper.convertValue(request, Account.class))
                 .map(account -> objectMapper.convertValue(account, AccountResponse.class))
                 .map(ResponseEntity::ok)
-                .doOnSuccess(accountResponseResponseEntity -> log.info("Account created: {}", request.username()))
-                .doOnError(throwable -> log.error("Error creating account: {}", throwable.getMessage()));
+                .doOnSuccess(accountResponseResponseEntity -> log.info("Created successfully: {}", request.username()))
+                .doOnError(throwable -> log.error("Error on creating account: {}", throwable.getMessage()));
     }
 
     @Operation(
@@ -95,12 +98,12 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PatchMapping("/{username}/lock")
-    public Mono<ResponseEntity<Object>> changeLockByUsername(@Parameter(description = "Username of the account")
+    public Mono<ResponseEntity<Void>> changeLockByUsername(@Parameter(description = "Username of the account")
                                                               @PathVariable Username username,
                                                               @Parameter(description = "New lock status")
                                                               @RequestParam boolean lock) {
         return accountService.setLockByUsername(username.value(), lock)
-                .thenReturn(ResponseEntity.noContent().build())
+                .thenReturn(ResponseEntity.noContent().<Void>build())
                 .doOnSuccess(aVoid -> log.info("Account locked: {}", username))
                 .doOnError(throwable -> log.error("Error locking account: {}", throwable.getMessage()));
     }
@@ -114,15 +117,16 @@ public class AccountController {
             @ApiResponse(responseCode = "404", description = "Account not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PatchMapping("/{username}/password")
-    public Mono<ResponseEntity<Object>> changePasswordByUsername(@Parameter(description = "Username of the account")
-                                                                  @PathVariable Username username,
-                                                                  @Valid @RequestBody Password newPassword) {
+    @PatchMapping("/password")
+    public Mono<ResponseEntity<Void>> changePasswordByUsername(@Parameter(description = "Username of the account")
+                                                                   @Valid @RequestBody Password newPassword,
+                                                               @AuthenticationPrincipal Username username) {
+        log.debug("Changing password for: {}", username);
         return accountService.findByUsername(username.value())
                 .flatMap(account -> {
                     account.setPassword(newPassword.value());
                     return accountService.save(account);
-                }).thenReturn(ResponseEntity.noContent().build())
+                }).thenReturn(ResponseEntity.noContent().<Void>build())
                 .doOnSuccess(aVoid -> log.info("Password changed: {}", username))
                 .doOnError(throwable -> log.error("Error changing password: {}", throwable.getMessage()));
     }
@@ -137,20 +141,25 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PatchMapping("/{username}/authorities")
-    public Mono<ResponseEntity<Object>> changeAuthoritiesByUsername(@Parameter(description = "Username of the account")
+    public Mono<ResponseEntity<Void>> changeAuthoritiesByUsername(@Parameter(description = "Username of the account")
                                                                     @PathVariable Username username,
                                                                     @RequestBody Set<AccountAuthorities> authorities) {
+        log.debug("Changing authorities for: {}", username);
         return accountService.findByUsername(username.value())
                 .flatMap(account -> {
                     account.setAccountAuthorities(authorities);
                     return accountService.save(account);
-                }).thenReturn(ResponseEntity.noContent().build())
+                }).thenReturn(ResponseEntity.noContent().<Void>build())
                 .doOnSuccess(aVoid -> log.info("Authorities changed: {}", username))
                 .doOnError(throwable -> log.error("Error changing authorities: {}", throwable.getMessage()));
     }
 
-    @GetMapping("/hello")
-    public Mono<ResponseEntity<String>> hello() {
-        return Mono.just(ResponseEntity.ok("Hello, World!"));
+    @GetMapping("/test") // TODO: Remove this endpoint
+    public Mono<ResponseEntity<String>> helloTest(ServerWebExchange exchange) {
+        // Get userdetails from the session
+        return exchange.getSession().map(session -> {
+            String username = session.getAttribute("username");
+            return ResponseEntity.ok("Hello, " + username);
+        });
     }
 }
