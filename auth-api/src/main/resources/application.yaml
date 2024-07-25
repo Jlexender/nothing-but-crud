@@ -8,8 +8,11 @@ spring:
   main:
     web-application-type: reactive
 
+  codec:
+    max-in-memory-size: ${SPRING_CODEC_MAX_IN_MEMORY_SIZE}
+
   jackson:
-    property-naming-strategy: SNAKE_CASE
+    property-naming-strategy: ${SPRING_JACKSON_PROPERTY_NAMING_STRATEGY}
 
   # Cassandra configuration
   cassandra:
@@ -23,7 +26,7 @@ spring:
 
   # Session configuration
   session:
-    timeout: 30m
+    timeout: ${SPRING_SESSION_TIMEOUT}
 
   data:
     redis:

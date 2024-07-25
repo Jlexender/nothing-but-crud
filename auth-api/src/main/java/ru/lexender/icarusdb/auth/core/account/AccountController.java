@@ -172,11 +172,11 @@ public class AccountController {
     }
 
     @Operation(
-            summary = "Update account authority",
-            description = "Update account authority by username"
+            summary = "Update account role",
+            description = "Update account role by username. Only users with higher role can update roles."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Account authority updated"),
+            @ApiResponse(responseCode = "204", description = "Account role updated"),
             @ApiResponse(responseCode = "404", description = "Account not found"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
@@ -185,14 +185,14 @@ public class AccountController {
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = AccountRole.class))
     )
-    @PatchMapping("/{username}/authority")
-    public Mono<ResponseEntity<Void>> updateAuthority(@Parameter(description = "Username")
-                                                      @PathVariable String username,
-                                                      @Valid @RequestBody AccountRole authority,
-                                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    @PatchMapping("/{username}/role")
+    public Mono<ResponseEntity<Void>> updateRole(@Parameter(description = "Username")
+                                                 @PathVariable String username,
+                                                 @Valid @RequestBody AccountRole role,
+                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return accountService.findByUsername(username)
                 .filter(account -> account.getRole().compareTo(userDetails.getAccount().getRole()) < 0)
-                .flatMap(account -> accountService.updateAuthoritiesByUsername(username, authority))
+                .flatMap(account -> accountService.updateAuthoritiesByUsername(username, role))
                 .then(Mono.fromCallable(() -> ResponseEntity.noContent().build()));
     }
 }

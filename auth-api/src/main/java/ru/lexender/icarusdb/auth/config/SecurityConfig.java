@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.Customizer;
@@ -27,11 +28,32 @@ public class SecurityConfig {
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {
-        return http.authorizeExchange(exchange -> exchange.anyExchange().permitAll())
+        return http.authorizeExchange(exchange -> exchange
+                        .pathMatchers(HttpMethod.POST,
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/signup"
+                        ).permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/v1/account").denyAll()
+                        .pathMatchers(HttpMethod.GET, "/api/v1/account/{username}").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/v1/image/avatar").permitAll()
+                        .pathMatchers(HttpMethod.PATCH,
+                                "/api/v1/account/*/role",
+                                "/api/v1/account/*/lock",
+                                "/api/v1/account/*/unlock"
+                        ).hasAnyRole("ADMIN", "STAFF")
+                        .pathMatchers(HttpMethod.GET,
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/webjars/**",
+                                "/swagger-resources/**"
+                        ).permitAll()
+                )
+                .httpBasic(Customizer.withDefaults())
+                .formLogin(Customizer.withDefaults())
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authenticationManager(authenticationManager())
                 .securityContextRepository(securityContextRepository())
-                .formLogin(Customizer.withDefaults())
                 .build();
     }
 
