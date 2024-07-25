@@ -41,8 +41,7 @@ public class AccountImageController {
     @PostMapping("/avatar")
     public Mono<ResponseEntity<Void>> uploadAvatar(@RequestPart(name = "avatar") Mono<ByteBuffer> avatar,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return avatar
-                .flatMap(byteBuffer -> {
+        return avatar.flatMap(byteBuffer -> {
                     userDetails.getAccount().setAvatar(byteBuffer);
                     return accountService.save(userDetails.getAccount());
                 })

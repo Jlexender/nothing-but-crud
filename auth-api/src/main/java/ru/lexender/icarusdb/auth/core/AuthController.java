@@ -1,6 +1,8 @@
 package ru.lexender.icarusdb.auth.core;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,13 +56,13 @@ public class AuthController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Signed up",
-                    content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "text/plain")),
+                    content = @Content(mediaType = "text/plain")),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Signup request",
             required = true,
-            content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json")
+            content = @Content(mediaType = "application/json")
     )
     @PostMapping("/signup")
     public Mono<ResponseEntity<String>> signup(@Valid @RequestBody SignupRequest request,
@@ -95,13 +97,13 @@ public class AuthController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Logged in",
-                    content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "text/plain")),
+                    content = @Content(mediaType = "text/plain")),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Login request",
             required = true,
-            content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json")
+            content = @Content(mediaType = "application/json")
     )
     @PostMapping("/login")
     public Mono<ResponseEntity<String>> login(@Valid @RequestBody LoginRequest request,
@@ -134,12 +136,12 @@ public class AuthController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Logged out",
-                    content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "text/plain"))
+                    content = @Content(mediaType = "text/plain"))
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Logout request",
             required = true,
-            content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json")
+            content = @Content(mediaType = "application/json")
     )
     @PostMapping("/logout")
     public Mono<ResponseEntity<String>> logout(ServerWebExchange exchange) {
@@ -155,8 +157,8 @@ public class AuthController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Current user information",
-                    content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json",
-                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = AccountAdminResponse.class))),
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AccountAdminResponse.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     @GetMapping("/me")
