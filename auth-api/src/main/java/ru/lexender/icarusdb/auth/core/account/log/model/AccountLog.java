@@ -2,7 +2,6 @@ package ru.lexender.icarusdb.auth.core.account.log.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,7 +17,7 @@ import org.springframework.data.cassandra.core.mapping.Table;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table
+@Table("account_log")
 public class AccountLog {
     @PrimaryKey
     @Email

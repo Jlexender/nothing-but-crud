@@ -1,8 +1,9 @@
 package ru.lexender.icarusdb.auth.core.account.dto;
 
+import ru.lexender.icarusdb.auth.core.account.model.AccountRole;
+
 import java.nio.ByteBuffer;
 import java.time.LocalDate;
-import java.util.Collection;
 
 public record AccountUserResponse(
         String username,
@@ -10,7 +11,7 @@ public record AccountUserResponse(
         String surname,
         LocalDate birthDate,
         ByteBuffer avatar,
-        Collection<String> authorities,
+        AccountRole role,
         LocalDate lockUntil
 ) {
 }

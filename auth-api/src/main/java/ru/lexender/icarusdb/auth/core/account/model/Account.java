@@ -18,7 +18,6 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
@@ -55,9 +54,9 @@ public class Account implements Serializable {
     @Column
     LocalDateTime created = LocalDateTime.now();
 
-    @Column("account_authorities")
+    @Column("role")
     @Builder.Default
-    Set<AccountAuthorities> accountAuthorities = Set.of(AccountAuthorities.ROLE_USER);
+    AccountRole role = AccountRole.ROLE_USER;
 
     @Column("lock_until")
     @Builder.Default

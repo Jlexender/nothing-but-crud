@@ -1,5 +1,11 @@
 package ru.lexender.icarusdb.auth.core.account;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,17 +22,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-import ru.lexender.icarusdb.auth.core.account.dto.AccountAdminResponse;
 import ru.lexender.icarusdb.auth.core.account.dto.AccountCreationRequest;
 import ru.lexender.icarusdb.auth.core.account.dto.AccountLockRequest;
 import ru.lexender.icarusdb.auth.core.account.log.model.AccountLog;
 import ru.lexender.icarusdb.auth.core.account.log.service.AccountLogService;
 import ru.lexender.icarusdb.auth.core.account.mapper.AccountMapper;
 import ru.lexender.icarusdb.auth.core.account.model.Account;
-import ru.lexender.icarusdb.auth.core.account.model.AccountAuthorities;
+import ru.lexender.icarusdb.auth.core.account.model.AccountRole;
 import ru.lexender.icarusdb.auth.core.account.service.AccountService;
-
-import java.util.Set;
+import ru.lexender.icarusdb.auth.core.user.model.UserDetailsImpl;
 
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -40,52 +44,139 @@ public class AccountController {
     AccountLogService accountLogService;
     AccountMapper accountMapper;
 
+    @Operation(
+            summary = "Create account",
+            description = "Create account with given credentials"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Account created",
+                    content = @Content(mediaType = "text/plain",
+                            schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Account creation request", required = true,
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = AccountCreationRequest.class))
+    )
     @PostMapping
-    public Mono<ResponseEntity<?>> createAccount(@Valid @RequestBody
-                                                 AccountCreationRequest request) {
+    public Mono<ResponseEntity<String>> createAccount(@Valid @RequestBody AccountCreationRequest request) {
         return Mono.zip(
+                accountLogService.existsByEmail(request.email()),
                 accountService.existsByUsername(request.username()),
-                accountLogService.existsByEmail(request.email())
-        ).flatMap(exists -> {
-            boolean usernameExists = exists.getT1();
-            boolean emailExists = exists.getT2();
+                accountService.count()
+        ).flatMap(tuple -> {
+            boolean emailExists = tuple.getT1();
+            boolean usernameExists = tuple.getT2();
+            long count = tuple.getT3();
 
-            if (usernameExists || emailExists) {
-                String errorMessage = "An account with the given " +
-                        (usernameExists ? "username" : "email") + " already exists.";
-                return Mono.just(ResponseEntity.badRequest().body(errorMessage));
-            } else {
-                return accountService.count().flatMap(count -> {
-                    Account account = accountMapper.accountCreationRequestToAccount(request);
+            if (usernameExists)
+                return Mono.error(new RuntimeException("Username is already taken"));
+            if (emailExists)
+                return Mono.error(new RuntimeException("Email is already taken"));
+
+
+            Account account = accountMapper.accountCreationRequestToAccount(request);
                     if (count == 0) {
-                        account.setAccountAuthorities(Set.of(AccountAuthorities.ROLE_STAFF));
+                        account.setRole(AccountRole.ROLE_STAFF);
                     }
-                    return accountLogService.save(AccountLog.builder()
+            return accountLogService.save(AccountLog
+                    .builder()
                             .username(request.username())
                             .email(request.email())
                             .build()).then(accountService.save(account));
-                }).map(savedAccount -> ResponseEntity.ok(accountMapper.accountToAccountUserResponse(savedAccount)));
-            }
-        });
+        }).map(account -> ResponseEntity.ok(
+                "Created account with username: " + account.getUsername())
+        );
     }
 
+    @Operation(
+            summary = "Get account",
+            description = "Get account by username"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Account found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Account.class))),
+            @ApiResponse(responseCode = "404", description = "Account not found")
+
+    })
+    @GetMapping("/{username}")
+    public Mono<ResponseEntity<Record>> getAccount(@Parameter(description = "Username") @PathVariable String username,
+                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return accountService.findByUsername(username)
+                .map(account -> {
+                    if (userDetails != null && userDetails
+                            .getAccount()
+                            .getRole()
+                            .compareTo(AccountRole.ROLE_ADMIN) >= 0) {
+                        return accountMapper.accountToAccountAdminResponse(account);
+                    } else {
+                        return accountMapper.accountToAccountUserResponse(account);
+                    }
+                })
+                .map(ResponseEntity::ok).switchIfEmpty(Mono.fromCallable(
+                        () -> ResponseEntity.notFound().build())
+                );
+    }
+
+    @Operation(
+            summary = "Lock account",
+            description = "Lock account by username"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Account locked"),
+            @ApiResponse(responseCode = "404", description = "Account not found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Account lock request", required = true,
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = AccountLockRequest.class))
+    )
     @PatchMapping("/{username}/lock")
-    public Mono<ResponseEntity<Void>> lockAccountByUsername(@PathVariable String username,
-                                                         @RequestBody AccountLockRequest request) {
+    public Mono<ResponseEntity<Void>> lockAccount(@Parameter(description = "Username")
+                                                  @PathVariable String username,
+                                                  @Valid @RequestBody AccountLockRequest request) {
         return accountService.lockByUsername(username, request.lockUntil())
                 .then(Mono.fromCallable(() -> ResponseEntity.noContent().build()));
     }
 
+    @Operation(
+            summary = "Unlock account",
+            description = "Unlock account by username"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Account unlocked"),
+            @ApiResponse(responseCode = "404", description = "Account not found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     @PatchMapping("/{username}/unlock")
-    public Mono<ResponseEntity<?>> unlockAccountByUsername(@PathVariable String username) {
+    public Mono<ResponseEntity<Void>> unlockAccount(@Parameter(description = "Username")
+                                                    @PathVariable String username) {
         return accountService.unlockByUsername(username)
                 .then(Mono.fromCallable(() -> ResponseEntity.noContent().build()));
     }
 
-    @GetMapping("/me")
-    public Mono<ResponseEntity<AccountAdminResponse>> getMe(@AuthenticationPrincipal Account account) {
-        return Mono.just(account)
-                .map(accountMapper::accountToAccountAdminResponse)
-                .map(ResponseEntity::ok);
+    @Operation(
+            summary = "Update account authority",
+            description = "Update account authority by username"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Account authority updated"),
+            @ApiResponse(responseCode = "404", description = "Account not found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Account role", required = true,
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = AccountRole.class))
+    )
+    @PatchMapping("/{username}/authority")
+    public Mono<ResponseEntity<Void>> updateAuthority(@Parameter(description = "Username")
+                                                      @PathVariable String username,
+                                                      @Valid @RequestBody AccountRole authority) {
+        return accountService.updateAuthoritiesByUsername(username, authority)
+                .then(Mono.fromCallable(() -> ResponseEntity.noContent().build()));
     }
 }

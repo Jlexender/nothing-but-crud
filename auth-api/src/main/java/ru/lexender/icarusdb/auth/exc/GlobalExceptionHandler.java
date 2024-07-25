@@ -30,5 +30,11 @@ public class GlobalExceptionHandler {
     private String toSnakeCase(String input) {
         return input.replaceAll("([a-z])([A-Z]+)", "$1_$2").toLowerCase();
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
 }
 
