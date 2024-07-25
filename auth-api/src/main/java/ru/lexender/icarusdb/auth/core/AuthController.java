@@ -14,8 +14,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +36,7 @@ import ru.lexender.icarusdb.auth.core.account.dto.AccountResponse;
 import ru.lexender.icarusdb.auth.core.account.util.Password;
 import ru.lexender.icarusdb.auth.core.dto.LoginRequest;
 import ru.lexender.icarusdb.auth.core.dto.SignupRequest;
+import ru.lexender.icarusdb.auth.core.user.model.UserDetailsImpl;
 
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -39,6 +48,7 @@ import ru.lexender.icarusdb.auth.core.dto.SignupRequest;
 public class AuthController {
     AccountController accountController;
     ReactiveAuthenticationManager authenticationManager;
+    ServerSecurityContextRepository securityContextRepository;
     PasswordEncoder passwordEncoder;
 
     @Operation(
@@ -55,20 +65,16 @@ public class AuthController {
     @PostMapping("/login")
     public Mono<ResponseEntity<String>> login(ServerWebExchange exchange,
                                               @Valid @RequestBody LoginRequest request) {
-//        return authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(request.username().value(), request.password().value()))
-//                .map(authentication -> {
-//                    exchange.getAttributes().put("username", request.username().value());
-//                    return ResponseEntity.ok("Logged in as " + request.username().value());
-//                })
-//                .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials")))
-//                .doOnSuccess(r -> log.info("Logged in as {}", request.username().value()))
-//                .doOnError(throwable -> log.error("Error on logging in: {}", throwable.getMessage()));
-        return exchange.getSession().map(session -> {
-            session.getAttributes().put("username", request.username().value());
-            return ResponseEntity.ok("Logged in as " + request.username().value());
-        });
-
+        return authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(request.username().value(), request.password().value()))
+                .flatMap(authentication -> exchange.getSession()
+                        .doOnNext(session -> {
+                            session.getAttributes().put("username", request.username().value());
+                        })
+                        .then(Mono.just(ResponseEntity.ok("Logged in as " + request.username().value())))
+                        .doOnSuccess(response -> log.info("Logged in as {}", request.username().value())))
+                .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials")))
+                .doOnError(throwable -> log.error("Error on logging in: {}", throwable.getMessage()));
     }
 
 
@@ -110,10 +116,37 @@ public class AuthController {
                                     new AccountRequest(request.username(), hashed, request.email());
 
                             return accountController.create(exchange, accountRequest)
-                                    .then(Mono.just(ResponseEntity.ok("Signed up as " + request.username().value())))
-                                    .doOnSuccess(r -> exchange.getAttributes().put("username", request.username().value()));
+                                    .then(Mono.defer(() -> {
+                                        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                                                request.username().value(), request.password().value());
+
+                                        return authenticationManager.authenticate(authentication)
+                                                .flatMap(auth -> {
+                                                    SecurityContext securityContext = new SecurityContextImpl(auth);
+                                                    return securityContextRepository.save(exchange, securityContext)
+                                                            .thenReturn(ResponseEntity.ok("Signed up as " + request.username().value()));
+                                                });
+                                    }));
                         })
-                ).doOnSuccess(r -> log.info("Signed up as {}", request.username().value()))
+                )
+                .doOnSuccess(r -> log.info("Signed up as {}", request.username().value()))
                 .doOnError(throwable -> log.error("Error on signing up: {}", throwable.getMessage()));
+    }
+
+
+    @Operation(
+            summary = "Get current user",
+            description = "Get current user for the session"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved current user",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserDetailsImpl.class))}),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    @GetMapping("/profile")
+    public Mono<ResponseEntity<UserDetailsImpl>> getProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.debug("Current user: {}", userDetails);
+        return Mono.just(ResponseEntity.ok(userDetails));
     }
 }

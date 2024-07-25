@@ -19,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
 
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
@@ -44,7 +46,7 @@ public class SecurityConfig {
                             .anyExchange().authenticated())
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authenticationManager(authenticationManager())
-                .formLogin(Customizer.withDefaults())
+                .securityContextRepository(securityContextRepository())
                 .build();
     }
 
@@ -54,6 +56,11 @@ public class SecurityConfig {
                 new UserDetailsRepositoryReactiveAuthenticationManager(userDetailsService);
         authenticationManager.setPasswordEncoder(passwordEncoder());
         return authenticationManager;
+    }
+
+    @Bean
+    public ServerSecurityContextRepository securityContextRepository() {
+        return new WebSessionServerSecurityContextRepository();
     }
 
     @Bean

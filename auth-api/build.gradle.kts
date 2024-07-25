@@ -58,6 +58,7 @@ dependencies {
 
     // Annotation processing
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.1.0")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
     annotationProcessor("org.projectlombok:lombok")
     compileOnly("org.projectlombok:lombok")

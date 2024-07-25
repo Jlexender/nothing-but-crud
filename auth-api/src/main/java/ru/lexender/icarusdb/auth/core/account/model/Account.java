@@ -13,6 +13,7 @@ import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
+import java.io.Serializable;
 import java.util.Set;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -21,7 +22,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table
-public class Account {
+public class Account implements Serializable {
     @PrimaryKey
     @Size(min = 5, max = 32, message = "Username must be between 5 and 32 characters")
     @NotNull(message = "Username is mandatory")
