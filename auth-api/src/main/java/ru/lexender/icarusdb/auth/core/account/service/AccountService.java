@@ -29,4 +29,8 @@ public class AccountService {
     public Mono<Account> findByUsername(String username) {
         return accountRepository.findByUsername(username);
     }
+
+    public Mono<Long> count() {
+        return accountRepository.count();
+    }
 }

@@ -35,18 +35,23 @@ public class SecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {
         return http.authorizeExchange(exchange ->
                     exchange.pathMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/signup").permitAll()
-                            .pathMatchers(HttpMethod.GET, "/actuator/**").permitAll()
-                            .pathMatchers("/api/v1/**").permitAll() // TODO: DEV ONLY! remove this line
+                            .pathMatchers(HttpMethod.POST, "api/v1/auth/account").denyAll()
+                            .pathMatchers(HttpMethod.PATCH,
+                                    "api/v1/auth/account/*/lock",
+                                    "api/v1/auth/account/*/authorities").hasAnyRole("ADMIN", "STAFF")
+                            .pathMatchers(HttpMethod.GET, "api/v1/auth/account/*").permitAll()
                             .pathMatchers(HttpMethod.GET,
-                        "/swagger-ui.html",
-                        "/swagger-ui/**",
-                        "/v3/api-docs/**",
-                        "/swagger-resources/**",
-                        "/webjars/**").permitAll()
+                                    "/actuator/**",
+                                    "/swagger-ui.html",
+                                    "/swagger-ui/**",
+                                    "/v3/api-docs/**",
+                                    "/swagger-resources/**",
+                                    "/webjars/**").hasRole("STAFF")
                             .anyExchange().authenticated())
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authenticationManager(authenticationManager())
                 .securityContextRepository(securityContextRepository())
+                .formLogin(Customizer.withDefaults())
                 .build();
     }
 

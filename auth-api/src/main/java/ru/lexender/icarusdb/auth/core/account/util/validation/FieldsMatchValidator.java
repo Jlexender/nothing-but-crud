@@ -32,7 +32,8 @@ public class FieldsMatchValidator implements ConstraintValidator<Match, Object> 
             Object firstValue = first.get(value);
             Object secondValue = second.get(value);
 
-            boolean matches = firstValue == null && secondValue == null || firstValue != null && firstValue.equals(secondValue);
+            boolean matches = firstValue == null && secondValue == null ||
+                    firstValue != null && firstValue.equals(secondValue);
 
             if (!matches) {
                 context.disableDefaultConstraintViolation();

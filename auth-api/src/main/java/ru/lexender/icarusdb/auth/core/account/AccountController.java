@@ -27,6 +27,7 @@ import reactor.core.publisher.Mono;
 import ru.lexender.icarusdb.auth.core.account.dto.AccountRequest;
 import ru.lexender.icarusdb.auth.core.account.dto.AccountResponse;
 import ru.lexender.icarusdb.auth.core.account.mapper.AccountMapper;
+import ru.lexender.icarusdb.auth.core.account.model.Account;
 import ru.lexender.icarusdb.auth.core.account.model.AccountAuthorities;
 import ru.lexender.icarusdb.auth.core.account.service.AccountService;
 import ru.lexender.icarusdb.auth.core.account.util.Password;
@@ -60,8 +61,11 @@ public class AccountController {
     @PostMapping
     public Mono<ResponseEntity<AccountResponse>> create(ServerWebExchange exchange,
                                                         @Valid @RequestBody AccountRequest request) {
-        return accountService.save(accountMapper.accountRequestToAccount(request))
-                .map(accountMapper::accountToAccountResponse)
+        return accountService.count().flatMap(count -> {
+                    Account account = accountMapper.accountRequestToAccount(request);
+                    if (count == 0) account.setAccountAuthorities(Set.of(AccountAuthorities.ROLE_STAFF));
+                    return accountService.save(account);
+                }).map(accountMapper::accountToAccountResponse)
                 .map(ResponseEntity::ok)
                 .doOnSuccess(accountResponseResponseEntity -> log.info("Created successfully: {}", request.username()))
                 .doOnError(throwable -> log.error("Error on creating account: {}", throwable.getMessage()));
@@ -81,7 +85,7 @@ public class AccountController {
     @GetMapping("/{username}")
     public Mono<ResponseEntity<AccountResponse>> getByUsername(ServerWebExchange exchange,
                                                                @Parameter(description = "Username of the account")
-                                                              @PathVariable Username username) {
+                                                               @PathVariable Username username) {
         return accountService.findByUsername(username.value())
                 .map(accountMapper::accountToAccountResponse)
                 .map(ResponseEntity::ok)

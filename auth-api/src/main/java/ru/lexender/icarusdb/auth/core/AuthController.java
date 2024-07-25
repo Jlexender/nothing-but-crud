@@ -124,7 +124,9 @@ public class AuthController {
                                                 .flatMap(auth -> {
                                                     SecurityContext securityContext = new SecurityContextImpl(auth);
                                                     return securityContextRepository.save(exchange, securityContext)
-                                                            .thenReturn(ResponseEntity.ok("Signed up as " + request.username().value()));
+                                                            .thenReturn(ResponseEntity.ok(
+                                                                    "Signed up as " + request.username().value())
+                                                            );
                                                 });
                                     }));
                         })
@@ -145,8 +147,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     @GetMapping("/profile")
-    public Mono<ResponseEntity<UserDetailsImpl>> getProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        log.debug("Current user: {}", userDetails);
+    public Mono<ResponseEntity<UserDetails>> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
         return Mono.just(ResponseEntity.ok(userDetails));
     }
 }
