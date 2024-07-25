@@ -7,6 +7,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import ru.lexender.icarusdb.auth.core.account.model.Account;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
@@ -34,6 +36,6 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !account.isLocked();
+        return account.getLockUntil().isBefore(LocalDate.now());
     }
 }
