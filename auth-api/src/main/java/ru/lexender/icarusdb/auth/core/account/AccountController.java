@@ -80,13 +80,16 @@ public class AccountController {
                     if (count == 0) {
                         account.setRole(AccountRole.ROLE_STAFF);
                     }
-            return accountLogService.save(AccountLog
-                    .builder()
+            return accountLogService.save(AccountLog.builder()
                             .username(request.username())
                             .email(request.email())
                             .build()).then(accountService.save(account));
         }).map(account -> ResponseEntity.ok(
-                "Created account with username: " + account.getUsername())
+                "Created account %s:%s:%s".formatted(
+                        account.getEmail(),
+                        account.getUsername(),
+                        account.getRole())
+                )
         );
     }
 
@@ -106,17 +109,15 @@ public class AccountController {
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return accountService.findByUsername(username)
                 .map(account -> {
-                    if (userDetails != null && userDetails
-                            .getAccount()
-                            .getRole()
-                            .compareTo(AccountRole.ROLE_ADMIN) >= 0) {
+                    if (userDetails != null
+                            && userDetails.getAccount().getRole().compareTo(AccountRole.ROLE_ADMIN) >= 0) {
                         return accountMapper.accountToAccountAdminResponse(account);
                     } else {
                         return accountMapper.accountToAccountUserResponse(account);
                     }
                 })
-                .map(ResponseEntity::ok).switchIfEmpty(Mono.fromCallable(
-                        () -> ResponseEntity.notFound().build())
+                .map(ResponseEntity::ok).switchIfEmpty(
+                        Mono.fromCallable(() -> ResponseEntity.notFound().build())
                 );
     }
 
@@ -175,8 +176,11 @@ public class AccountController {
     @PatchMapping("/{username}/authority")
     public Mono<ResponseEntity<Void>> updateAuthority(@Parameter(description = "Username")
                                                       @PathVariable String username,
-                                                      @Valid @RequestBody AccountRole authority) {
-        return accountService.updateAuthoritiesByUsername(username, authority)
+                                                      @Valid @RequestBody AccountRole authority,
+                                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return accountService.findByUsername(username)
+                .filter(account -> account.getRole().compareTo(userDetails.getAccount().getRole()) < 0)
+                .flatMap(account -> accountService.updateAuthoritiesByUsername(username, authority))
                 .then(Mono.fromCallable(() -> ResponseEntity.noContent().build()));
     }
 }
