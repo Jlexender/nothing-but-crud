@@ -30,21 +30,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {
-        return http.authorizeExchange(exchange ->
-                    exchange.pathMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/signup").permitAll()
-                            .pathMatchers(HttpMethod.POST, "api/v1/account").denyAll()
-                            .pathMatchers(HttpMethod.PATCH,
-                                    "api/v1/account/*/lock",
-                                    "api/v1/account/*/authorities").hasAnyRole("ADMIN", "STAFF")
-                            .pathMatchers(HttpMethod.GET, "api/v1/account/*").permitAll()
-                            .pathMatchers(HttpMethod.GET,
-                                    "/actuator/**",
-                                    "/swagger-ui.html",
-                                    "/swagger-ui/**",
-                                    "/v3/api-docs/**",
-                                    "/swagger-resources/**",
-                                    "/webjars/**").hasRole("STAFF")
-                            .anyExchange().authenticated())
+        return http.authorizeExchange(exchange -> exchange
+                .pathMatchers(HttpMethod.POST, "/api/v1/auth/signup").permitAll())
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authenticationManager(authenticationManager())
                 .securityContextRepository(securityContextRepository())

@@ -39,12 +39,6 @@ public class AccountService {
                 }).then();
     }
 
-
-    @Transactional(readOnly = true)
-    public Mono<Account> findByUsername(String username) {
-        return accountRepository.findById(username);
-    }
-
     @Transactional(readOnly = true)
     public Mono<Long> count() {
         return accountRepository.count();
@@ -53,5 +47,10 @@ public class AccountService {
     @Transactional(readOnly = true)
     public Mono<Boolean> existsByUsername(String username) {
         return accountRepository.existsById(username);
+    }
+
+    @Transactional(readOnly = true)
+    public Mono<Account> findByUsername(String username) {
+        return accountRepository.findById(username);
     }
 }

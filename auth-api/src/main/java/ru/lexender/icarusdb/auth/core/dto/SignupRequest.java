@@ -22,6 +22,7 @@ public record SignupRequest(
         )
         String username,
 
+        @NotNull
         @Size(min = 8, max = 32)
         @Pattern(
                 regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]*$",

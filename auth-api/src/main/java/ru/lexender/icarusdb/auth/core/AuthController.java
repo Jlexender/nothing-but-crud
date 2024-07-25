@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,6 +22,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,11 +53,46 @@ import ru.lexender.icarusdb.auth.core.user.model.UserDetailsImpl;
 @Tag(name = "Auth", description = "Authentication API endpoints")
 @Validated
 public class AuthController {
-    AccountLogService accountLogService;
+    ReactiveAuthenticationManager authenticationManager;
+    ServerSecurityContextRepository securityContextRepository;
     AccountController accountController;
+    RequestMapper requestMapper;
 
     @PostMapping("/signup")
-    public Mono<ResponseEntity<Void>> signup(@Valid @RequestBody SignupRequest request) {
-        return
+    public Mono<ResponseEntity<String>> signup(@Valid @RequestBody SignupRequest request,
+                                               ServerWebExchange exchange) {
+        return accountController.createAccount(requestMapper.signupRequestToAccountCreationRequest(request))
+                .flatMap(o -> {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(request.username(), request.password());
+                    return authenticationManager.authenticate(authToken)
+                            .flatMap(authentication -> {
+                                SecurityContextImpl securityContext = new SecurityContextImpl();
+                                securityContext.setAuthentication(authentication);
+                                return securityContextRepository.save(exchange, securityContext)
+                                        .then(exchange.getSession())
+                                        .flatMap(session -> Mono.just(ResponseEntity.status(HttpStatus.CREATED).body("Signed up as " + request.username())));
+                            });
+                });
+    }
+
+    @PostMapping("/login")
+    public Mono<ResponseEntity<String>> login(@Valid @RequestBody LoginRequest request,
+                                              ServerWebExchange exchange) {
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(request.username(), request.password());
+        return authenticationManager.authenticate(authToken)
+                .flatMap(authentication -> {
+                    SecurityContextImpl securityContext = new SecurityContextImpl();
+                    securityContext.setAuthentication(authentication);
+                    return securityContextRepository.save(exchange, securityContext)
+                            .then(exchange.getSession())
+                            .flatMap(session -> Mono.just(ResponseEntity.ok("Logged in as " + request.username())));
+                });
+    }
+
+    @PostMapping("/logout")
+    public Mono<ResponseEntity<String>> logout(ServerWebExchange exchange) {
+        return exchange.getSession()
+                .flatMap(session -> session.invalidate()
+                        .then(Mono.fromCallable(() -> ResponseEntity.ok("Logged out"))));
     }
 }
