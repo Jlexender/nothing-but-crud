@@ -9,12 +9,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Constraint(validatedBy = FieldsMatchValidator.class)
-@Target({ ElementType.TYPE })
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Match {
     String firstField();
+
     String secondField();
+
     String message() default "passwords must match";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

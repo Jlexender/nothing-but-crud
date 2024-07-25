@@ -23,7 +23,7 @@ import org.springframework.session.data.redis.config.annotation.web.server.Enabl
 @EnableWebFluxSecurity
 @EnableRedisWebSession
 public class SecurityConfig {
-     ReactiveUserDetailsService userDetailsService;
+    ReactiveUserDetailsService userDetailsService;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {

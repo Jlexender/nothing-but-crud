@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import ru.lexender.icarusdb.auth.core.account.dto.AccountCreationRequest;
 import ru.lexender.icarusdb.auth.core.account.dto.AccountLockRequest;
@@ -72,11 +74,12 @@ public class AccountController {
             boolean usernameExists = tuple.getT2();
             long count = tuple.getT3();
 
-            if (usernameExists)
-                return Mono.error(new RuntimeException("Username is already taken"));
-            if (emailExists)
-                return Mono.error(new RuntimeException("Email is already taken"));
-
+            if (usernameExists) {
+                return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is already taken"));
+            }
+            if (emailExists) {
+                return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is already taken"));
+            }
 
             Account account = accountMapper.accountCreationRequestToAccount(request);
             if (count == 0) {
@@ -87,15 +90,19 @@ public class AccountController {
             return accountLogService.save(AccountLog.builder()
                             .username(request.username())
                             .email(request.email())
-                            .build()).then(accountService.save(account));
-        }).map(account -> ResponseEntity.ok(
-                "Created account %s:%s:%s".formatted(
-                        account.getEmail(),
-                        account.getUsername(),
-                        account.getRole())
-                )
-        );
+                            .build())
+                    .then(accountService.save(account))
+                    .then(Mono.just(ResponseEntity.ok("Created account successfully")));
+        }).onErrorResume(ex -> {
+            if (ex instanceof ResponseStatusException) {
+                return Mono.just(ResponseEntity.status(((ResponseStatusException) ex).getStatusCode())
+                        .body(ex.getMessage()));
+            }
+            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred"));
+        });
     }
+
 
     @Operation(
             summary = "Get account",
@@ -109,7 +116,8 @@ public class AccountController {
 
     })
     @GetMapping("/{username}")
-    public Mono<ResponseEntity<Record>> getAccount(@Parameter(description = "Username") @PathVariable String username,
+    public Mono<ResponseEntity<Record>> getAccount(@Parameter(description = "Username")
+                                                   @PathVariable String username,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return accountService.findByUsername(username)
                 .map(account -> {
