@@ -2,7 +2,6 @@ package ru.lexender.icarusdb.auth.core.account.util.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import jakarta.validation.constraints.AssertTrue;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
 

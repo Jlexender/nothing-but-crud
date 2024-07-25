@@ -39,7 +39,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Log4j2
 @RestController
-@RequestMapping("/api/v1/auth/account")
+@RequestMapping("/api/v1/account")
 @Tag(name = "Account", description = "Account API endpoints")
 @Validated
 public class AccountController {

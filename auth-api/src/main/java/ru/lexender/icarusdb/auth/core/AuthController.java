@@ -21,7 +21,6 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
-import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -68,9 +67,7 @@ public class AuthController {
         return authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(request.username().value(), request.password().value()))
                 .flatMap(authentication -> exchange.getSession()
-                        .doOnNext(session -> {
-                            session.getAttributes().put("username", request.username().value());
-                        })
+                        .doOnNext(session -> session.getAttributes().put("username", request.username().value()))
                         .then(Mono.just(ResponseEntity.ok("Logged in as " + request.username().value())))
                         .doOnSuccess(response -> log.info("Logged in as {}", request.username().value())))
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials")))
