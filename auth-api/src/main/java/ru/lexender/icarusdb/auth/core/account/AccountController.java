@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -43,6 +44,7 @@ public class AccountController {
     AccountService accountService;
     AccountLogService accountLogService;
     AccountMapper accountMapper;
+    PasswordEncoder passwordEncoder;
 
     @Operation(
             summary = "Create account",
@@ -77,9 +79,11 @@ public class AccountController {
 
 
             Account account = accountMapper.accountCreationRequestToAccount(request);
-                    if (count == 0) {
-                        account.setRole(AccountRole.ROLE_STAFF);
-                    }
+            if (count == 0) {
+                account.setRole(AccountRole.ROLE_STAFF);
+            }
+            account.setPassword(passwordEncoder.encode(request.password()));
+
             return accountLogService.save(AccountLog.builder()
                             .username(request.username())
                             .email(request.email())
