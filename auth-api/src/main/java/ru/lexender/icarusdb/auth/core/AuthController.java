@@ -55,15 +55,20 @@ public class AuthController {
     @PostMapping("/login")
     public Mono<ResponseEntity<String>> login(ServerWebExchange exchange,
                                               @Valid @RequestBody LoginRequest request) {
-        return authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username().value(), request.password().value()))
-                .map(authentication -> {
-                    exchange.getAttributes().put("username", request.username().value());
-                    return ResponseEntity.ok("Logged in as " + request.username().value());
-                })
-                .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials")))
-                .doOnSuccess(r -> log.info("Logged in as {}", request.username().value()))
-                .doOnError(throwable -> log.error("Error on logging in: {}", throwable.getMessage()));
+//        return authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(request.username().value(), request.password().value()))
+//                .map(authentication -> {
+//                    exchange.getAttributes().put("username", request.username().value());
+//                    return ResponseEntity.ok("Logged in as " + request.username().value());
+//                })
+//                .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials")))
+//                .doOnSuccess(r -> log.info("Logged in as {}", request.username().value()))
+//                .doOnError(throwable -> log.error("Error on logging in: {}", throwable.getMessage()));
+        return exchange.getSession().map(session -> {
+            session.getAttributes().put("username", request.username().value());
+            return ResponseEntity.ok("Logged in as " + request.username().value());
+        });
+
     }
 
 
