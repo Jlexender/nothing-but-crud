@@ -9,7 +9,7 @@ import ru.lexender.icarusdb.auth.core.account.util.Username;
 public record AccountRequest(
         @NotNull @Valid
         Username username,
-        @NotNull @Valid
+        @NotNull
         Password password,
         @NotNull @Valid
         Email email

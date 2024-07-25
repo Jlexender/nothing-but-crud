@@ -8,6 +8,9 @@ spring:
   main:
     web-application-type: reactive
 
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
   # Cassandra configuration
   cassandra:
     keyspace-name: ${SPRING_CASSANDRA_KEYSPACE_NAME}

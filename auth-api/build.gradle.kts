@@ -36,6 +36,7 @@ dependencies {
     // Database
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.mapstruct:mapstruct:1.5.5.Final")
 
     // API documentation
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.6.0")
@@ -57,6 +58,7 @@ dependencies {
 
     // Annotation processing
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
     annotationProcessor("org.projectlombok:lombok")
     compileOnly("org.projectlombok:lombok")
 

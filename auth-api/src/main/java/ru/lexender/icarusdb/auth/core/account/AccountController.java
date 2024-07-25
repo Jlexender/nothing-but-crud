@@ -27,6 +27,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import ru.lexender.icarusdb.auth.core.account.dto.AccountRequest;
 import ru.lexender.icarusdb.auth.core.account.dto.AccountResponse;
+import ru.lexender.icarusdb.auth.core.account.mapper.AccountMapper;
 import ru.lexender.icarusdb.auth.core.account.model.Account;
 import ru.lexender.icarusdb.auth.core.account.model.AccountAuthorities;
 import ru.lexender.icarusdb.auth.core.account.service.AccountService;
@@ -43,7 +44,7 @@ import java.util.Set;
 @Tag(name = "Account", description = "Account API endpoints")
 @Validated
 public class AccountController {
-    ObjectMapper objectMapper;
+    AccountMapper accountMapper;
     AccountService accountService;
 
 
@@ -59,9 +60,10 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping
-    public Mono<ResponseEntity<AccountResponse>> create(@Valid @RequestBody AccountRequest request) {
-        return accountService.save(objectMapper.convertValue(request, Account.class))
-                .map(account -> objectMapper.convertValue(account, AccountResponse.class))
+    public Mono<ResponseEntity<AccountResponse>> create(ServerWebExchange serverWebExchange,
+                                                        @Valid @RequestBody AccountRequest request) {
+        return accountService.save(accountMapper.accountRequestToAccount(request))
+                .map(accountMapper::accountToAccountResponse)
                 .map(ResponseEntity::ok)
                 .doOnSuccess(accountResponseResponseEntity -> log.info("Created successfully: {}", request.username()))
                 .doOnError(throwable -> log.error("Error on creating account: {}", throwable.getMessage()));
@@ -82,7 +84,7 @@ public class AccountController {
     public Mono<ResponseEntity<AccountResponse>> getByUsername(@Parameter(description = "Username of the account")
                                                               @PathVariable Username username) {
         return accountService.findByUsername(username.value())
-                .map(account -> objectMapper.convertValue(account, AccountResponse.class))
+                .map(accountMapper::accountToAccountResponse)
                 .map(ResponseEntity::ok)
                 .doOnSuccess(accountResponseResponseEntity -> log.info("Account retrieved: {}", username))
                 .doOnError(throwable -> log.error("Error retrieving account: {}", throwable.getMessage()));

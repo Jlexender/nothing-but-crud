@@ -10,7 +10,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import ru.lexender.icarusdb.auth.core.account.AccountController;
+import ru.lexender.icarusdb.auth.core.account.dto.AccountRequest;
 import ru.lexender.icarusdb.auth.core.account.dto.AccountResponse;
+import ru.lexender.icarusdb.auth.core.account.util.Password;
 import ru.lexender.icarusdb.auth.core.dto.LoginRequest;
 import ru.lexender.icarusdb.auth.core.dto.SignupRequest;
 
@@ -32,6 +38,8 @@ import ru.lexender.icarusdb.auth.core.dto.SignupRequest;
 @Validated
 public class AuthController {
     AccountController accountController;
+    ReactiveAuthenticationManager authenticationManager;
+    PasswordEncoder passwordEncoder;
 
     @Operation(
             summary = "Login to an account",
@@ -47,11 +55,12 @@ public class AuthController {
     @PostMapping("/login")
     public Mono<ResponseEntity<String>> login(ServerWebExchange exchange,
                                               @Valid @RequestBody LoginRequest request) {
-        log.debug("Login request: {}", request);
-        return exchange.getSession().map(session -> {
-            session.getAttributes().put("username", request.username().value());
-            return ResponseEntity.ok("Logged in as " + request.username().value());
-        });
+        return authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.username().value(), request.password().value())
+        ).map(authentication -> ResponseEntity.ok("Logged in as " + request.username().value()))
+                .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials")))
+                .doOnSuccess(r -> log.info("Logged in as {}", request.username().value()))
+                .doOnError(throwable -> log.error("Error on logging in: {}", throwable.getMessage()));
     }
 
 
@@ -84,7 +93,17 @@ public class AuthController {
     @PostMapping("/signup")
     public Mono<ResponseEntity<String>> signup(ServerWebExchange exchange,
                                                @Valid @RequestBody SignupRequest request) {
-        // TODO: Implement account creation
-        return null;
+        return Mono.just(request)
+                .flatMap(validRequest -> {
+                    Password encoded = new Password(passwordEncoder.encode(validRequest.password().value()));
+                    return accountController.create(exchange, new AccountRequest(validRequest.username(), encoded, validRequest.email()))
+                                    .thenReturn(ResponseEntity.ok("Signed up as " + validRequest.username().value()))
+                                    .doOnSuccess(response -> log.info("Successfully signed up as {}", validRequest.username().value()));
+                    }
+                )
+                .onErrorResume(error -> {
+                    log.error("Error during signup process: {}", error.getMessage());
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred"));
+                });
     }
 }

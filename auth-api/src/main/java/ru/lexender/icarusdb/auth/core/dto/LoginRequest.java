@@ -8,7 +8,7 @@ import ru.lexender.icarusdb.auth.core.account.util.Username;
 public record LoginRequest(
         @NotNull @Valid
         Username username,
-        @NotNull @Valid
+        @NotNull
         Password password
 ) {
 }
