@@ -2,37 +2,49 @@ package ru.lexender.icarusdb.auth.core.account.util.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import jakarta.validation.constraints.AssertTrue;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.log4j.Log4j2;
 
 import java.lang.reflect.Field;
 
+@Log4j2
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class FieldsMatchValidator implements ConstraintValidator<Match, Object> {
-    String firstFieldName;
-    String secondFieldName;
+    String firstField;
+    String secondField;
 
     @Override
-    public void initialize(Match matchAnnotation) {
-        this.firstFieldName = matchAnnotation.firstField();
-        this.secondFieldName = matchAnnotation.secondField();
+    public void initialize(Match constraintAnnotation) {
+        firstField = constraintAnnotation.firstField();
+        secondField = constraintAnnotation.secondField();
     }
 
     @Override
-    public boolean isValid(Object obj, ConstraintValidatorContext context) {
+    public boolean isValid(Object value, ConstraintValidatorContext context) {
         try {
-            Class<?> clazz = obj.getClass();
-            Field firstField = clazz.getDeclaredField(firstFieldName);
-            Field secondField = clazz.getDeclaredField(secondFieldName);
+            Field first = value.getClass().getDeclaredField(firstField);
+            Field second = value.getClass().getDeclaredField(secondField);
 
-            firstField.setAccessible(true);
-            secondField.setAccessible(true);
+            first.setAccessible(true);
+            second.setAccessible(true);
 
-            Object firstValue = firstField.get(obj);
-            Object secondValue = secondField.get(obj);
+            Object firstValue = first.get(value);
+            Object secondValue = second.get(value);
 
-            return firstValue != null && firstValue.equals(secondValue);
+            boolean matches = firstValue == null && secondValue == null || firstValue != null && firstValue.equals(secondValue);
+
+            if (!matches) {
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+                        .addPropertyNode(secondField)
+                        .addConstraintViolation();
+            }
+
+            return matches;
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException("An error occurred while validating fields match", e);
+            log.error("Error while validating fields match", e);
+            return false;
         }
     }
 }

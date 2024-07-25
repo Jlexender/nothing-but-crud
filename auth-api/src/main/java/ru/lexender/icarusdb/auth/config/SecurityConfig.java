@@ -19,11 +19,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
 
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Configuration
 @EnableWebFluxSecurity
+@EnableRedisWebSession
 public class SecurityConfig {
      ReactiveUserDetailsService userDetailsService;
 

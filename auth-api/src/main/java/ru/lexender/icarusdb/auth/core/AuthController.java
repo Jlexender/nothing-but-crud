@@ -93,17 +93,18 @@ public class AuthController {
     @PostMapping("/signup")
     public Mono<ResponseEntity<String>> signup(ServerWebExchange exchange,
                                                @Valid @RequestBody SignupRequest request) {
-        return Mono.just(request)
-                .flatMap(validRequest -> {
-                    Password encoded = new Password(passwordEncoder.encode(validRequest.password().value()));
-                    return accountController.create(exchange, new AccountRequest(validRequest.username(), encoded, validRequest.email()))
-                                    .thenReturn(ResponseEntity.ok("Signed up as " + validRequest.username().value()))
-                                    .doOnSuccess(response -> log.info("Successfully signed up as {}", validRequest.username().value()));
-                    }
-                )
-                .onErrorResume(error -> {
-                    log.error("Error during signup process: {}", error.getMessage());
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred"));
-                });
+        return accountController.getByUsername(request.username())
+                .flatMap(existingAccount -> Mono.just(ResponseEntity.badRequest().body("Username already exists")))
+                .switchIfEmpty(
+                        Mono.defer(() -> {
+                            Password hashed = new Password(passwordEncoder.encode(request.password().value()));
+                            AccountRequest accountRequest =
+                                    new AccountRequest(request.username(), hashed, request.email());
+
+                            return accountController.create(exchange, accountRequest)
+                                    .then(Mono.just(ResponseEntity.ok("Signed up as " + request.username().value())));
+                        })
+                ).doOnSuccess(r -> log.info("Signed up as {}", request.username().value()))
+                .doOnError(throwable -> log.error("Error on signing up: {}", throwable.getMessage()));
     }
 }

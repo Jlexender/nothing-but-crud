@@ -155,13 +155,4 @@ public class AccountController {
                 .doOnSuccess(aVoid -> log.info("Authorities changed: {}", username))
                 .doOnError(throwable -> log.error("Error changing authorities: {}", throwable.getMessage()));
     }
-
-    @GetMapping("/test") // TODO: Remove this endpoint
-    public Mono<ResponseEntity<String>> helloTest(ServerWebExchange exchange) {
-        // Get userdetails from the session
-        return exchange.getSession().map(session -> {
-            String username = session.getAttribute("username");
-            return ResponseEntity.ok("Hello, " + username);
-        });
-    }
 }

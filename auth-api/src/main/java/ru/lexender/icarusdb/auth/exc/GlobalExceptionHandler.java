@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
     @ExceptionHandler(WebExchangeBindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Map<String, List<String>>> handleWebChangeBindException(WebExchangeBindException ex) {
+    public ResponseEntity<Map<String, List<String>>> handleWebExchangeBindException(WebExchangeBindException ex) {
         return ResponseEntity.badRequest().body(ex.getFieldErrors().stream()
                 .collect(Collectors.groupingBy(fieldError -> toSnakeCase(fieldError.getField()),
                         Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList()))));
