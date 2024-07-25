@@ -1,9 +1,11 @@
 package ru.lexender.icarusdb.auth.core.account.util;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record Password(
-        @Size(min = 8, max = 64, message = "Password must be between 8 and 64 characters")
+        @NotNull
+        @Size(min = 8, max = 64)
         String value
 ) {
 }

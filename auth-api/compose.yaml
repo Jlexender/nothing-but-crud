@@ -38,6 +38,8 @@ services:
     depends_on:
       cassandra:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - './initdb/cassandra:/initdb'
     command: /bin/bash -c "echo Initializing Cassandra && cqlsh cassandra 9042 -f /initdb/*;"

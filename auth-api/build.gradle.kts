@@ -33,12 +33,14 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-data-cassandra-reactive")
 
-    // Database and JDBC
+    // Database
     implementation("org.springframework.kafka:spring-kafka")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     // API documentation
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.6.0")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // Security
     implementation("org.springframework.session:spring-session-data-redis")
 
     // Test dependencies

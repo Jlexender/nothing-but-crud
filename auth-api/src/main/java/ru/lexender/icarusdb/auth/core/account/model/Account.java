@@ -9,11 +9,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.util.Set;
-import java.util.UUID;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
@@ -23,20 +23,19 @@ import java.util.UUID;
 @Table
 public class Account {
     @PrimaryKey
-    UUID id;
-
     @Size(min = 5, max = 32, message = "Username must be between 5 and 32 characters")
-    @NotNull(message = "Username must not be null")
+    @NotNull(message = "Username is mandatory")
     String username;
 
     @Size(min = 8, max = 64, message = "Password must be between 8 and 64 characters")
-    @NotNull(message = "Password must not be null")
+    @NotNull(message = "Password is mandatory")
     String password;
 
-    @NotNull(message = "Email must not be null")
+    @NotNull(message = "Email is mandatory")
     @Email(message = "Email must be a valid email address")
     String email;
 
+    @Column("account_authorities")
     @Builder.Default
     Set<AccountAuthorities> accountAuthorities = Set.of(AccountAuthorities.ROLE_USER);
 

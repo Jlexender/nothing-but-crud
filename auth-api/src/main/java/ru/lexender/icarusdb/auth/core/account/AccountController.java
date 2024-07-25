@@ -38,10 +38,10 @@ import java.util.Set;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Log4j2
-@Validated
 @RestController
 @RequestMapping("/api/v1/auth/account")
 @Tag(name = "Account", description = "Account API endpoints")
+@Validated
 public class AccountController {
     ObjectMapper objectMapper;
     AccountService accountService;

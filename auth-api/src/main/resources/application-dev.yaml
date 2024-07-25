@@ -9,7 +9,8 @@ spring:
       on-profile: dev
 logging:
   level:
+    ru.lexender.icarusdb: DEBUG
     org.springframework.web: DEBUG
     org.springframework.security: DEBUG
-
+    org.springframework.data: DEBUG
 

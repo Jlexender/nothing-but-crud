@@ -1,6 +1,5 @@
-package ru.lexender.icarusdb.auth.core.auth;
+package ru.lexender.icarusdb.auth.core;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,10 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import ru.lexender.icarusdb.auth.core.account.AccountController;
-import ru.lexender.icarusdb.auth.core.account.dto.AccountRequest;
 import ru.lexender.icarusdb.auth.core.account.dto.AccountResponse;
-import ru.lexender.icarusdb.auth.core.auth.dto.LoginRequest;
-import ru.lexender.icarusdb.auth.core.auth.dto.SignupRequest;
+import ru.lexender.icarusdb.auth.core.dto.LoginRequest;
+import ru.lexender.icarusdb.auth.core.dto.SignupRequest;
 
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -30,6 +29,7 @@ import ru.lexender.icarusdb.auth.core.auth.dto.SignupRequest;
 @Log4j2
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Auth", description = "Authentication API endpoints")
+@Validated
 public class AuthController {
     AccountController accountController;
 
@@ -84,16 +84,7 @@ public class AuthController {
     @PostMapping("/signup")
     public Mono<ResponseEntity<String>> signup(ServerWebExchange exchange,
                                                @Valid @RequestBody SignupRequest request) {
-        log.debug("Signup request: {}", request);
-        return Mono.just(request)
-                .filter(r -> r.password().equals(r.passwordRepeat()))
-                .flatMap(r -> accountController.create(new AccountRequest(r.username(), r.password(), r.email()))
-                        .flatMap(account -> exchange.getSession()
-                                .flatMap(session -> {
-                                    session.getAttributes().put("username", r.username().value());
-                                    return Mono.just(ResponseEntity.ok("Signed up as " + r.username().value()));
-                                })
-                        ))
-                .switchIfEmpty(Mono.just(ResponseEntity.badRequest().body("Passwords do not match")));
+        // TODO: Implement account creation
+        return null;
     }
 }
