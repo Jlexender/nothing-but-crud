@@ -56,8 +56,11 @@ public class AuthController {
     public Mono<ResponseEntity<String>> login(ServerWebExchange exchange,
                                               @Valid @RequestBody LoginRequest request) {
         return authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username().value(), request.password().value())
-        ).map(authentication -> ResponseEntity.ok("Logged in as " + request.username().value()))
+                new UsernamePasswordAuthenticationToken(request.username().value(), request.password().value()))
+                .map(authentication -> {
+                    exchange.getAttributes().put("username", request.username().value());
+                    return ResponseEntity.ok("Logged in as " + request.username().value());
+                })
                 .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials")))
                 .doOnSuccess(r -> log.info("Logged in as {}", request.username().value()))
                 .doOnError(throwable -> log.error("Error on logging in: {}", throwable.getMessage()));
@@ -93,7 +96,7 @@ public class AuthController {
     @PostMapping("/signup")
     public Mono<ResponseEntity<String>> signup(ServerWebExchange exchange,
                                                @Valid @RequestBody SignupRequest request) {
-        return accountController.getByUsername(request.username())
+        return accountController.getByUsername(exchange, request.username())
                 .flatMap(existingAccount -> Mono.just(ResponseEntity.badRequest().body("Username already exists")))
                 .switchIfEmpty(
                         Mono.defer(() -> {
@@ -102,7 +105,8 @@ public class AuthController {
                                     new AccountRequest(request.username(), hashed, request.email());
 
                             return accountController.create(exchange, accountRequest)
-                                    .then(Mono.just(ResponseEntity.ok("Signed up as " + request.username().value())));
+                                    .then(Mono.just(ResponseEntity.ok("Signed up as " + request.username().value())))
+                                    .doOnSuccess(r -> exchange.getAttributes().put("username", request.username().value()));
                         })
                 ).doOnSuccess(r -> log.info("Signed up as {}", request.username().value()))
                 .doOnError(throwable -> log.error("Error on signing up: {}", throwable.getMessage()));

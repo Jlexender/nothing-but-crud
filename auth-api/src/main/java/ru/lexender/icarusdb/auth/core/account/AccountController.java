@@ -1,6 +1,5 @@
 package ru.lexender.icarusdb.auth.core.account;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,7 +27,6 @@ import reactor.core.publisher.Mono;
 import ru.lexender.icarusdb.auth.core.account.dto.AccountRequest;
 import ru.lexender.icarusdb.auth.core.account.dto.AccountResponse;
 import ru.lexender.icarusdb.auth.core.account.mapper.AccountMapper;
-import ru.lexender.icarusdb.auth.core.account.model.Account;
 import ru.lexender.icarusdb.auth.core.account.model.AccountAuthorities;
 import ru.lexender.icarusdb.auth.core.account.service.AccountService;
 import ru.lexender.icarusdb.auth.core.account.util.Password;
@@ -60,7 +58,7 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping
-    public Mono<ResponseEntity<AccountResponse>> create(ServerWebExchange serverWebExchange,
+    public Mono<ResponseEntity<AccountResponse>> create(ServerWebExchange exchange,
                                                         @Valid @RequestBody AccountRequest request) {
         return accountService.save(accountMapper.accountRequestToAccount(request))
                 .map(accountMapper::accountToAccountResponse)
@@ -81,7 +79,8 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/{username}")
-    public Mono<ResponseEntity<AccountResponse>> getByUsername(@Parameter(description = "Username of the account")
+    public Mono<ResponseEntity<AccountResponse>> getByUsername(ServerWebExchange exchange,
+                                                               @Parameter(description = "Username of the account")
                                                               @PathVariable Username username) {
         return accountService.findByUsername(username.value())
                 .map(accountMapper::accountToAccountResponse)
@@ -100,7 +99,8 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PatchMapping("/{username}/lock")
-    public Mono<ResponseEntity<Void>> changeLockByUsername(@Parameter(description = "Username of the account")
+    public Mono<ResponseEntity<Void>> changeLockByUsername(ServerWebExchange exchange,
+                                                           @Parameter(description = "Username of the account")
                                                               @PathVariable Username username,
                                                               @Parameter(description = "New lock status")
                                                               @RequestParam boolean lock) {
@@ -120,7 +120,8 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PatchMapping("/password")
-    public Mono<ResponseEntity<Void>> changePasswordByUsername(@Parameter(description = "Username of the account")
+    public Mono<ResponseEntity<Void>> changePasswordByUsername(ServerWebExchange exchange,
+                                                               @Parameter(description = "Username of the account")
                                                                    @Valid @RequestBody Password newPassword,
                                                                @AuthenticationPrincipal Username username) {
         log.debug("Changing password for: {}", username);
@@ -143,7 +144,8 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PatchMapping("/{username}/authorities")
-    public Mono<ResponseEntity<Void>> changeAuthoritiesByUsername(@Parameter(description = "Username of the account")
+    public Mono<ResponseEntity<Void>> changeAuthoritiesByUsername(ServerWebExchange exchange,
+                                                                  @Parameter(description = "Username of the account")
                                                                     @PathVariable Username username,
                                                                     @RequestBody Set<AccountAuthorities> authorities) {
         log.debug("Changing authorities for: {}", username);
