@@ -53,8 +53,12 @@ public class SecurityConfig {
                 .formLogin(Customizer.withDefaults())
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authenticationManager(authenticationManager())
-                .securityContextRepository(securityContextRepository())
                 .build();
+    }
+
+    @Bean
+    public ServerSecurityContextRepository securityContextRepository() {
+        return new WebSessionServerSecurityContextRepository();
     }
 
     @Bean
@@ -63,11 +67,6 @@ public class SecurityConfig {
                 new UserDetailsRepositoryReactiveAuthenticationManager(userDetailsService);
         authenticationManager.setPasswordEncoder(passwordEncoder());
         return authenticationManager;
-    }
-
-    @Bean
-    public ServerSecurityContextRepository securityContextRepository() {
-        return new WebSessionServerSecurityContextRepository();
     }
 
     @Bean
