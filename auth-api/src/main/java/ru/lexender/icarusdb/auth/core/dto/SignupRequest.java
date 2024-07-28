@@ -8,10 +8,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import ru.lexender.icarusdb.auth.core.account.util.validation.Match;
 
 import java.time.LocalDate;
 
+@Builder
 @Match(firstField = "password", secondField = "passwordConfirm")
 public record SignupRequest(
         @NotNull

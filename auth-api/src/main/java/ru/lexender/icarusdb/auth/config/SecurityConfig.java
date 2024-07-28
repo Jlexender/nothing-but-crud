@@ -33,7 +33,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/signup"
                         ).permitAll()
-                        .pathMatchers(HttpMethod.POST, "/api/v1/account").denyAll()
+                        .pathMatchers(HttpMethod.POST, "/api/v1/account").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/v1/account/{username}").permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/v1/image/avatar").permitAll()
                         .pathMatchers(HttpMethod.PATCH,

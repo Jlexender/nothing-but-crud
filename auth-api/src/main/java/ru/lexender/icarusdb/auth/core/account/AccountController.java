@@ -92,7 +92,9 @@ public class AccountController {
                             .email(request.email())
                             .build())
                     .then(accountService.save(account))
-                    .then(Mono.just(ResponseEntity.ok("Created account successfully")));
+                    .then(Mono.just(
+                            ResponseEntity.ok("Created account %s:%s".formatted(request.username(), request.name())))
+                    );
         }).onErrorResume(ex -> {
             if (ex instanceof ResponseStatusException) {
                 return Mono.just(ResponseEntity.status(((ResponseStatusException) ex).getStatusCode())
@@ -121,8 +123,7 @@ public class AccountController {
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return accountService.findByUsername(username)
                 .map(account -> {
-                    if (userDetails != null
-                            && userDetails.getAccount().getRole().compareTo(AccountRole.ROLE_ADMIN) >= 0) {
+                    if (AccountRole.ROLE_ADMIN.compareTo(userDetails.getAccount().getRole()) <= 0) {
                         return accountMapper.accountToAccountAdminResponse(account);
                     } else {
                         return accountMapper.accountToAccountUserResponse(account);
