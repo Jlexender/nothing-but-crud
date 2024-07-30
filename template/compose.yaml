@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: 'postgres:latest'
+    image: 'bitnami/postgresql:latest'
     restart: always
     env_file:
       - './env/dev/postgres.env'
