@@ -1,12 +1,21 @@
 spring:
-  profiles:
-    active: dev
+  main:
+    web-application-type: reactive
 
   application:
     name: auth-api
 
-  main:
-    web-application-type: reactive
+  profiles:
+    active: dev
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      key-deserializer: ${SPRING_KAFKA_CONSUMER_KEY_DESERIALIZER}
+      value-deserializer: ${SPRING_KAFKA_CONSUMER_VALUE_DESERIALIZER}
+    producer:
+      key-serializer: ${SPRING_KAFKA_PRODUCER_KEY_SERIALIZER}
+      value-serializer: ${SPRING_KAFKA_PRODUCER_VALUE_SERIALIZER}
 
   codec:
     max-in-memory-size: ${SPRING_CODEC_MAX_IN_MEMORY_SIZE}
@@ -14,7 +23,6 @@ spring:
   jackson:
     property-naming-strategy: ${SPRING_JACKSON_PROPERTY_NAMING_STRATEGY}
 
-  # Cassandra configuration
   cassandra:
     keyspace-name: ${SPRING_CASSANDRA_KEYSPACE_NAME}
     contact-points: ${SPRING_CASSANDRA_CONTACT_POINTS}
@@ -24,7 +32,6 @@ spring:
     local-datacenter: ${SPRING_CASSANDRA_LOCAL_DATACENTER}
     schema-action: ${SPRING_CASSANDRA_SCHEMA_ACTION}
 
-  # Session configuration
   session:
     timeout: ${SPRING_SESSION_TIMEOUT}
 
