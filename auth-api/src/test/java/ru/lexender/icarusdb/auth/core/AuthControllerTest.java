@@ -20,6 +20,7 @@ import ru.lexender.icarusdb.auth.core.config.TestSecurityConfig;
 import ru.lexender.icarusdb.auth.core.dto.LoginRequest;
 import ru.lexender.icarusdb.auth.core.dto.SignupRequest;
 import ru.lexender.icarusdb.auth.core.account.mapper.RequestMapper;
+import ru.lexender.icarusdb.auth.kafka.ProducerService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -36,6 +37,9 @@ public class AuthControllerTest {
 
     @MockBean
     private AccountController accountController;
+
+    @MockBean
+    private ProducerService producerService;
 
     @MockBean
     private RequestMapper requestMapper;

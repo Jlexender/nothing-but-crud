@@ -60,10 +60,12 @@ public class AuthController {
                         new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()))
                 .map(auth -> {
                     SecurityContextHolder.getContext().setAuthentication(auth);
-                    producerService.sendMessage("authorization-attempts", "User " + auth.getName() + " has authorized");
+                    producerService.sendMessage("authorization-attempts",
+                            "User " + auth.getName() + " has authorized");
                     return ResponseEntity.ok().body("Logged in as " + auth.getName());
                 }).onErrorResume(e -> {
-                    producerService.sendMessage("authorization-attempts", "Failed authorization for user " + loginRequest.username());
+                    producerService.sendMessage("authorization-attempts",
+                            "Failed authorization for user " + loginRequest.username());
                     return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials"));
                 });
     }
