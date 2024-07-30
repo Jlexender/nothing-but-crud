@@ -25,6 +25,7 @@ import ru.lexender.icarusdb.auth.core.account.AccountController;
 import ru.lexender.icarusdb.auth.core.account.mapper.RequestMapper;
 import ru.lexender.icarusdb.auth.core.dto.LoginRequest;
 import ru.lexender.icarusdb.auth.core.dto.SignupRequest;
+import ru.lexender.icarusdb.auth.kafka.ProducerService;
 
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -37,6 +38,7 @@ public class AuthController {
     AccountController accountController;
     ReactiveAuthenticationManager authenticationManager;
     RequestMapper requestMapper;
+    ProducerService producerService;
 
     @Operation(
             summary = "Login",
@@ -55,13 +57,15 @@ public class AuthController {
     @PostMapping("/login")
     public Mono<ResponseEntity<String>> login(@Valid @RequestBody LoginRequest loginRequest) {
         return authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()))
+                        new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()))
                 .map(auth -> {
                     SecurityContextHolder.getContext().setAuthentication(auth);
+                    producerService.sendMessage("authorization-attempts", "User " + auth.getName() + " has authorized");
                     return ResponseEntity.ok().body("Logged in as " + auth.getName());
-                }).onErrorResume(
-                        e -> Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials"))
-                );
+                }).onErrorResume(e -> {
+                    producerService.sendMessage("authorization-attempts", "Failed authorization for user " + loginRequest.username());
+                    return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials"));
+                });
     }
 
 

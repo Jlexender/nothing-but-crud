@@ -48,6 +48,8 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/swagger-resources/**"
                         ).permitAll()
+                        .pathMatchers("/actuator/**").permitAll()
+                        .anyExchange().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults())

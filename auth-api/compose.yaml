@@ -57,10 +57,45 @@ services:
     depends_on:
       cassandra:
         condition: service_healthy
+      kafka:
+        condition: service_healthy
     healthcheck:
       test: 'wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1'
       interval: 20s
       timeout: 30s
+      retries: 3
+    networks:
+      - auth-api
+
+  zookeeper:
+    image: 'wurstmeister/zookeeper:latest'
+    env_file:
+      - './env/dev/zookeeper.env'
+      - './env/dev/zookeeper-secrets.env'
+    ports:
+      - '3281:2181'
+    healthcheck:
+      test: 'echo ruok | nc localhost 2181 | grep imok'
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - auth-api
+
+  kafka:
+    image: 'wurstmeister/kafka:latest'
+    env_file:
+      - './env/dev/kafka.env'
+      - './env/dev/kafka-secrets.env'
+    ports:
+      - '3292-3294:9092'
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-z", "kafka", "9092"]
+      interval: 10s
+      timeout: 5s
       retries: 3
     networks:
       - auth-api
